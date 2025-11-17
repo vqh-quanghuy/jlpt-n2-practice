@@ -1,0 +1,725 @@
+/* Enhanced styles for JLPT N2 Practice */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --header-height: 70px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
+    color: var(--dark-color);
+}
+
+/* Header styling */
+header {
+    height: var(--header-height);
+    min-height: var(--header-height);
+    border-bottom: 2px solid var(--primary-color);
+    flex-shrink: 0;
+}
+
+header h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Navigation buttons */
+.nav-btn {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    border-width: 1px;
+    font-size: 0.875rem;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.nav-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-btn.active {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.nav-btn i {
+    font-size: 1em;
+}
+
+/* Button group styling */
+.btn-group .nav-btn:not(.active) {
+    background-color: white;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-group .nav-btn:not(.active):hover {
+    background-color: #f8f9ff;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Main content area */
+main {
+    min-height: calc(100vh - var(--header-height));
+}
+
+@media (max-width: 576px) {
+    main {
+        height: calc(100vh - 100px);
+        max-height: calc(100vh - 100px);
+    }
+}
+
+/* Quiz section styling */
+.quiz-section {
+    display: none;
+}
+
+.quiz-section.active {
+    display: block;
+}
+
+/* Quiz container */
+.quiz-container {
+    width: 700px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .quiz-container {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+/* Question styling */
+.question-container {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+    flex-shrink: 0;
+}
+
+.question-content {
+    max-width: 100%;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+.question-text {
+    color: var(--primary-color);
+    font-weight: 600;
+    line-height: 1.3;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+    border-radius: 0.75rem;
+    border: 2px solid #e3f2fd;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
+    position: relative;
+    margin-bottom: 1rem;
+    text-align: left;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    font-size: 1.75rem;
+    white-space: normal;
+    overflow-x: auto;
+    overflow-y: auto;
+    margin: 0;
+    text-indent: 0;
+}
+
+.question-text .grammar-pre {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    white-space: pre;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.question-text.single-line {
+    white-space: nowrap;
+    height: 120px;
+    overflow-y: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.question-text.single-line .grammar-pre {
+    white-space: nowrap;
+}
+
+.question-text .bookmark-icon {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    cursor: pointer;
+    color: var(--secondary-color);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    padding: 0.25rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    opacity: 0.8;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.question-text .bookmark-icon:hover {
+    color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.95);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.question-text .bookmark-icon.bookmarked {
+    color: var(--warning-color);
+    background: rgba(255, 243, 205, 0.9);
+    opacity: 1;
+}
+
+/* Answer options */
+.answer-options {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    flex-grow: 1;
+    align-content: start;
+    overflow: visible;
+}
+
+.answer-chip {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    line-height: 1.4;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    z-index: 1;
+}
+
+.answer-chip:hover {
+    border-color: var(--primary-color);
+    background: #f8f9ff;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
+    z-index: 2;
+}
+
+.answer-chip:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--primary-color);
+    border-radius: 0.5rem 0 0 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.answer-chip:hover:before {
+    opacity: 1;
+}
+
+.answer-chip.correct {
+    background: linear-gradient(135deg, #d1e7dd 0%, #a3d9a4 100%);
+    border-color: var(--success-color);
+    color: #0f5132;
+    font-weight: 500;
+}
+
+.answer-chip.correct:before {
+    background: var(--success-color);
+    opacity: 1;
+}
+
+.answer-chip.incorrect {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+    border-color: var(--danger-color);
+    color: #721c24;
+    font-weight: 500;
+}
+
+.answer-chip.incorrect:before {
+    background: var(--danger-color);
+    opacity: 1;
+}
+
+.answer-chip.disabled {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* Strikethrough text */
+.strikethrough {
+    text-decoration: line-through;
+    color: var(--danger-color);
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+/* Grammar info card */
+.grammar-info-card {
+    background: linear-gradient(135deg, #d1e7dd 0%, #a3d9a4 100%);
+    border: 1px solid #badbcc;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.08);
+}
+
+.grammar-meaning {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #0f5132;
+    line-height: 1.2;
+}
+
+.grammar-notice, .grammar-examples {
+    margin: 0.3em;
+}
+
+.grammar-notice h6, .grammar-examples h6 {
+    color: #0f5132;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.grammar-notice ul, .grammar-examples ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.grammar-notice li, .grammar-examples li {
+    margin: 0;
+    line-height: 1.3;
+    font-size: 0.9rem;
+}
+
+/* New question button */
+.new-quiz-btn {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #0a58ca 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: block;
+    margin: 1rem auto 0;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+    flex-shrink: 0;
+}
+
+.new-quiz-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+}
+
+/* Form controls */
+.form-check-label {
+    font-weight: 400;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.card-header .form-check-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.card-header .form-check-input {
+    background-color: white;
+    border-color: white;
+}
+
+.card-header .form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Card styling */
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* Table styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: var(--light-color);
+    border-color: #dee2e6;
+    font-weight: 600;
+    padding: 1rem;
+    color: var(--dark-color);
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: #dee2e6;
+}
+
+
+
+/* Remove button styling */
+.remove-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+    background: #bb2d3b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Grammar structure styling for lists and reminds */
+.grammar-structure {
+    color: var(--primary-color);
+    font-weight: 600;
+    line-height: 1.3;
+    font-size: 1.25rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.grammar-structure .grammar-pre {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    white-space: pre;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Remind button styling */
+.remind-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.remind-btn:hover {
+    background: rgba(13, 110, 253, 0.1);
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.remind-btn.active {
+    color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.remind-btn.active:hover {
+    background: rgba(255, 193, 7, 0.2);
+    color: #e0a800;
+}
+
+/* Grammar remind cards */
+.grammar-remind-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 1rem;
+    margin: 0.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    line-height: 1.2;
+}
+
+.grammar-remind-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.1);
+}
+
+.grammar-remind-card .close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    cursor: pointer;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.grammar-remind-card .close-btn:hover {
+    background: #f8f9fa;
+    color: var(--danger-color);
+}
+
+.grammar-structure {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+/* Loading screen */
+#loading {
+    display: flex !important;
+}
+
+#loading.d-none {
+    display: none !important;
+}
+
+.spinner-border {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* Quiz sections */
+#quiz-sections {
+    display: none;
+}
+
+#quiz-sections.show {
+    display: block !important;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--secondary-color);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+    opacity: 0.5;
+}
+
+.empty-state h5 {
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Toast styling */
+.toast {
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* Navigation tabs */
+.nav-tabs .nav-link {
+    border-radius: 0.5rem 0.5rem 0 0;
+    border-color: transparent;
+    color: var(--secondary-color);
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: #e9ecef;
+    background: #f8f9fa;
+}
+
+.nav-tabs .nav-link.active {
+    background: white;
+    border-color: #dee2e6 #dee2e6 white;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .nav-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .nav-btn i {
+        display: none;
+    }
+    
+    .question-text {
+        font-size: 1.5rem;
+        padding: 1.25rem;
+    }
+    
+    .answer-chip {
+        padding: 0.875rem;
+        font-size: 0.95rem;
+    }
+    
+    .answer-chip:hover {
+        transform: translateX(2px);
+    }
+    
+    .grammar-info-card {
+        padding: 1rem;
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 576px) {
+    :root {
+        --header-height: 60px;
+    }
+    
+    header h5 {
+        font-size: 1rem;
+    }
+    
+    .nav-btn {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.375rem;
+    }
+    
+    header .row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    header .col-md-4,
+    header .col-md-8 {
+        flex: none;
+        width: 100%;
+    }
+    
+    .question-text {
+        font-size: 1.25rem;
+        padding: 1rem;
+    }
+    
+    .answer-chip {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .grammar-info-card {
+        padding: 0.75rem;
+        max-height: none;
+        overflow: visible;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.375rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Smooth transitions */
+* {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Focus styles for accessibility */
+.nav-btn:focus,
+.answer-chip:focus,
+.new-quiz-btn:focus,
+.remove-btn:focus,
+.remind-btn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .answer-chip {
+        border-width: 3px;
+    }
+    
+    .question-text {
+        border-width: 3px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

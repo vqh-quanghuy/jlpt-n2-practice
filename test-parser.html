@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TSV Parser Test</title>
+</head>
+<body>
+    <h1>TSV Parser Test</h1>
+    <p>Open browser console to see results</p>
+    
+    <script>
+        // TSV Parser test
+        function parseTSV(text) {
+            const data = [];
+            let currentRow = [];
+            let currentField = '';
+            let inQuotes = false;
+            let i = 0;
+            
+            while (i < text.length) {
+                const char = text[i];
+                
+                if (char === '"' && !inQuotes) {
+                    // Start of quoted field
+                    inQuotes = true;
+                } else if (char === '"' && inQuotes) {
+                    // Check if it's escaped quote or end of quote
+                    if (i + 1 < text.length && text[i + 1] === '"') {
+                        // Escaped quote
+                        currentField += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // End of quoted field
+                        inQuotes = false;
+                    }
+                } else if (char === '\t' && !inQuotes) {
+                    // Field separator
+                    currentRow.push(currentField.trim());
+                    currentField = '';
+                } else if (char === '\n' && !inQuotes) {
+                    // End of row
+                    if (currentField || currentRow.length > 0) {
+                        currentRow.push(currentField.trim());
+                        if (currentRow.some(field => field !== '')) {
+                            data.push(currentRow);
+                        }
+                    }
+                    currentRow = [];
+                    currentField = '';
+                } else {
+                    // Regular character
+                    currentField += char;
+                }
+                
+                i++;
+            }
+            
+            // Handle last row
+            if (currentField || currentRow.length > 0) {
+                currentRow.push(currentField.trim());
+                if (currentRow.some(field => field !== '')) {
+                    data.push(currentRow);
+                }
+            }
+            
+            return data;
+        }
+        
+        // Test with sample from your file
+        const sampleTSV = `"N1+にに応じて\nN1+に応じて+N2"\t"Tùy theo.../\nTương ứng với..."\tTuỳ theo N phía trước mà chủ thể làm gì đó cho phù hợp, tương ứng với N.\t"1, 言語レベル応じて、クラス分けを行う。\n2, 収入に応じて一人一人が払う税額は変化する。"`;
+        
+        console.log('Original TSV:', sampleTSV);
+        console.log('Parsed result:', parseTSV(sampleTSV));
+    </script>
+</body>
+</html>

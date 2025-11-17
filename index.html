@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JLPT N2 Practice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column vh-100">
+    <!-- Compact Header -->
+    <header class="bg-white shadow-sm border-bottom">
+        <div class="container-fluid py-2">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <h5 class="mb-0 text-primary fw-bold">
+                        <i class="bi bi-mortarboard me-1"></i>JLPT N2 Practice
+                    </h5>
+                </div>
+                <div class="col-md-8">
+                    <div class="btn-group btn-group-sm w-100" role="group">
+                        <button type="button" class="btn btn-primary nav-btn active" data-tab="vocab">
+                            <i class="bi bi-book me-1"></i>語彙
+                        </button>
+                        <button type="button" class="btn btn-outline-primary nav-btn" data-tab="kanji">
+                            <i class="bi bi-translate me-1"></i>漢字
+                        </button>
+                        <button type="button" class="btn btn-outline-primary nav-btn" data-tab="grammar">
+                            <i class="bi bi-journal-text me-1"></i>文法
+                        </button>
+                        <button type="button" class="btn btn-outline-info nav-btn" data-tab="reminds">
+                            <i class="bi bi-bookmark me-1"></i>復習
+                        </button>
+                        <button type="button" class="btn btn-outline-success nav-btn" data-tab="list">
+                            <i class="bi bi-list-ul me-1"></i>まとめ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1 overflow-hidden">
+        <div class="container-fluid h-100 py-3">
+
+            <!-- Loading Screen -->
+            <div id="loading" class="d-flex align-items-center justify-content-center h-100">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Đang tải dữ liệu...</p>
+                </div>
+            </div>
+
+            <!-- Quiz Sections -->
+            <div id="quiz-sections" class="h-100" style="overflow-y: auto;">
+                <!-- Vocabulary Quiz -->
+                <div id="vocab-section" class="quiz-section active">
+                    <div class="card border-0">
+                        <div class="card-header bg-primary text-white py-2">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-0"><i class="bi bi-book me-1"></i>Bài tập từ vựng</h6>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" id="vocab-revert">
+                                            <label class="form-check-label text-white-50" for="vocab-revert">
+                                                <i class="bi bi-arrow-repeat me-1"></i>Đảo ngược
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" id="vocab-reminds">
+                                            <label class="form-check-label text-white-50" for="vocab-reminds">
+                                                <i class="bi bi-bookmark me-1"></i>Ôn tập
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="vocab-quiz" class="quiz-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kanji Quiz -->
+                <div id="kanji-section" class="quiz-section">
+                    <div class="card border-0">
+                        <div class="card-header bg-primary text-white py-2">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-0"><i class="bi bi-translate me-1"></i>Bài tập 漢字</h6>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" id="kanji-revert">
+                                            <label class="form-check-label text-white-50" for="kanji-revert">
+                                                <i class="bi bi-arrow-repeat me-1"></i>Đảo ngược
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" id="kanji-reminds">
+                                            <label class="form-check-label text-white-50" for="kanji-reminds">
+                                                <i class="bi bi-bookmark me-1"></i>Ôn tập
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="kanji-quiz" class="quiz-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grammar Quiz -->
+                <div id="grammar-section" class="quiz-section">
+                    <div class="card border-0">
+                        <div class="card-header bg-primary text-white py-2">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-0"><i class="bi bi-journal-text me-1"></i>Bài tập ngữ pháp</h6>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input" type="checkbox" id="grammar-reminds">
+                                        <label class="form-check-label text-white-50" for="grammar-reminds">
+                                            <i class="bi bi-bookmark me-1"></i>Ôn tập
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="grammar-quiz" class="quiz-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reminds Section -->
+                <div id="reminds-section" class="quiz-section h-100">
+                    <div class="card h-100 border-0">
+                        <div class="card-header bg-primary text-white py-2">
+                            <h6 class="mb-0"><i class="bi bi-bookmark me-1"></i>Danh sách ôn tập</h6>
+                        </div>
+                        <div class="card-body d-flex flex-column p-0">
+                            <ul class="nav nav-tabs nav-fill" id="reminds-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="reminds-vocab-tab" data-bs-toggle="tab" data-bs-target="#reminds-vocab" type="button">
+                                        <i class="bi bi-book me-1"></i>Từ vựng
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="reminds-kanji-tab" data-bs-toggle="tab" data-bs-target="#reminds-kanji" type="button">
+                                        <i class="bi bi-translate me-1"></i>Kanji
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="reminds-grammar-tab" data-bs-toggle="tab" data-bs-target="#reminds-grammar" type="button">
+                                        <i class="bi bi-journal-text me-1"></i>Ngữ pháp
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content overflow-auto" id="reminds-content" style="max-height: calc(100vh - 200px);">
+                                <div class="tab-pane fade show active" id="reminds-vocab">
+                                    <div id="reminds-vocab-table" class="p-3"></div>
+                                </div>
+                                <div class="tab-pane fade" id="reminds-kanji">
+                                    <div id="reminds-kanji-table" class="p-3"></div>
+                                </div>
+                                <div class="tab-pane fade" id="reminds-grammar">
+                                    <div id="reminds-grammar-cards" class="p-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List Section -->
+                <div id="list-section" class="quiz-section h-100">
+                    <div class="card h-100 border-0">
+                        <div class="card-header bg-primary text-white py-2">
+                            <h6 class="mb-0"><i class="bi bi-list-ul me-1"></i>Danh sách đầy đủ</h6>
+                        </div>
+                        <div class="card-body d-flex flex-column p-0">
+                            <ul class="nav nav-tabs nav-fill" id="list-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="list-vocab-tab" data-bs-toggle="tab" data-bs-target="#list-vocab" type="button">
+                                        <i class="bi bi-book me-1"></i>Từ vựng
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="list-kanji-tab" data-bs-toggle="tab" data-bs-target="#list-kanji" type="button">
+                                        <i class="bi bi-translate me-1"></i>Kanji
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="list-grammar-tab" data-bs-toggle="tab" data-bs-target="#list-grammar" type="button">
+                                        <i class="bi bi-journal-text me-1"></i>Ngữ pháp
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content overflow-auto" id="list-content" style="max-height: calc(100vh - 200px);">
+                                <div class="tab-pane fade show active" id="list-vocab">
+                                    <div id="list-vocab-table" class="p-3"></div>
+                                </div>
+                                <div class="tab-pane fade" id="list-kanji">
+                                    <div id="list-kanji-table" class="p-3"></div>
+                                </div>
+                                <div class="tab-pane fade" id="list-grammar">
+                                    <div id="list-grammar-cards" class="p-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage">Bạn có chắc muốn xóa mục này khỏi danh sách ôn tập?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast for notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notification-toast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle me-2"></i>Đã thêm vào danh sách ôn tập!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/placeholder-modules.js"></script>
+    <script src="js/local-storage-utils.js"></script>
+    <script src="js/data-loader.js"></script>
+    <script src="js/quiz-vocab.js"></script>
+    <script src="js/quiz-kanji.js"></script>
+    <script src="js/quiz-grammar.js"></script>
+    <script src="js/reminds.js"></script>
+    <script src="js/list.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
