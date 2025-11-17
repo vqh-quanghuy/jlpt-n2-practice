@@ -246,8 +246,8 @@ class DataLoader {
     parseGrammarExamples(examples) {
         if (!examples || examples === '') return [];
         
-        // Split by common separators and clean up - using ; and numbers at start
-        const exampleList = examples.split(/[;。；]|(?=\d+[,.])/g).filter(example => {
+        // Split by semicolons and numbers at start, but NOT by Japanese periods
+        const exampleList = examples.split(/[;；]|(?=\d+[,.])/g).filter(example => {
             const cleaned = example.trim();
             return cleaned !== '' && cleaned.length > 1;
         });
