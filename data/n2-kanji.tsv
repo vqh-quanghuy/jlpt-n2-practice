@@ -73,7 +73,7 @@
 賞金	しょうきん	tiền thưởng
 金賞	きんしょう	giải vàng
 受賞	じゅしょう	nhận thưởng, được trao giải
-分楽章	ぶんがくしょ	giải thưởng văn học
+文学賞	ぶんがくしょう	giải thưởng văn học
 鑑賞	かんしょう	thưởng thức, cảm thụ nghệ thuật
 賞味期限	しょうみきげん	hạn sử dụng
 孫	そん	lỗ, tổn thất, thiệt
@@ -168,7 +168,7 @@
 思い浮かぶ	おもいうかぶ	nhớ ra, nghĩ đến
 泥	どろ	bùn
 津波	つなみ	sóng thần
-興味津々	ちょうみしんしん	vô cùng quan tâm, hứng thú
+興味津々	きょうみしんしん	vô cùng quan tâm, hứng thú
 漁業	ぎょぎょう	ngành ngư nghiệp
 漁師	りょうし	ngư dân, người đánh cá
 ハロン湾	はろんわん	vịnh Hạ Long
@@ -289,9 +289,9 @@
 準優勝	じゅんゆうしょう	giải nhì, á quân
 優先	ゆうせん	ưu tiên
 最優先	さいゆうせん	ưu tiên hàng đầu
-恐ろしい	おそ	đáng sợ, khủng khiếp
-恐れる	おそ	sợ hãi
-恐れ	おそ	nỗi sợ, sự lo lắng
+恐ろしい	おそろしい	đáng sợ, khủng khiếp
+恐れる	おそれる	sợ hãi
+恐れ	おそれ	nỗi sợ, sự lo lắng
 恐怖	きょうふ	nỗi sợ hãi, kinh hoàng
 状態	じょうたい	tình trạng, trạng thái
 態度	たいど	thái độ
@@ -303,9 +303,9 @@
 快適	かいてき	thoải mái, dễ chịu
 不快	ふかい	khó chịu, không thoải mái
 不愉快	ふゆかい	khó chịu, không vui
-怪しい	あや	đáng ngờ, kỳ lạ
+怪しい	あやしい	đáng ngờ, kỳ lạ
 怪我	けが	vết thương, bị thương
-悔しい	くや	hối hận, tiếc nuối
+くやしい	くや	hối hận, tiếc nuối
 後悔	こうかい	hối tiếc, ăn năn
 不潔	ふけつ	bẩn thỉu, không sạch sẽ
 簡潔	かんけつ	ngắn gọn, súc tích
@@ -313,7 +313,7 @@
 仮契約	かりけいやく	hợp đồng tạm thời
 喫茶店	きっさてん	quán cà phê
 喫煙	きつえん	hút thuốc
-召し上がる	めあ	Xin mời dùng (kính ngữ của ăn, uống)
+召し上がる	めしあがる	Xin mời dùng (kính ngữ của ăn, uống)
 招く	まね	mời, rủ
 招待	しょうたい	mời, lời mời
 照る	てる	chiếu sáng, tỏa sáng
@@ -467,7 +467,7 @@
 就職率	しゅうしょくりつ	tỷ lệ có viẹc làm
 寮	りょう	ký túc xá
 医療	いりょう	y tế
-治療	ちりょう」	chữa trị,điều trị
+治療	ちりょう	chữa trị,điều trị
 同僚	どうりょう	đồng nghiệp
 巣	す	tổ ,ổ
 お菓子	おかし	kẹo bánh ngọt
@@ -833,19 +833,19 @@
 地帯	ちたい	vùng, khu vực
 熱帯	ねったい	vùng nhiệt đới
 包帯	ほうたい	băng vết thương
-衣服	い ふく	quần áo
+衣服	いふく	quần áo
 衣装	いしょう	trang phục, y phục
 衣料品	いりょうひん	sản phẩm may mặc
 浴衣	ゆかた	yukata, áo kimono mùa
-依頼	い らい	yêu cầu, nhờ vả
+依頼	いらい	yêu cầu, nhờ vả
 補う	おぎなう	bổ sung, đền bù
 候補	こうほ	dự khuyết, ứng cử
-補助	ほ じょ	hỗ trợ, trợ cấp
-補正	ほ せい	sửa chữa, điều chỉnh
+補助	ほじょ	hỗ trợ, trợ cấp
+補正	ほせい	sửa chữa, điều chỉnh
 壊す	こわす	làm hỏng, phá vỡ
 壊れる	こわれる	bị hỏng, bị vỡ
 服装	ふくそう	trang phục, cách ăn mặc
-衣装	い しょう	y phục, trang phục
+いしょう	い しょう	y phục, trang phục
 包装	ほうそう	bao bì, sự đóng gói
 装置	そうち	thiết bị, dụng cụ
 袋	ふくろ	túi, bao
@@ -992,7 +992,7 @@
 伸びる	のびる	kéo dài, giãn ra, được kéo dài
 のばす	のばす	kéo dài, làm cho dài ra, trì hoãn
 延期	えんき	hoãn, trì hoãn
-遅延	ちえん	trì hoãn, chậm trễ
+ちえん	ちえん	trì hoãn, chậm trễ
 誕生日	たんじょうび	sinh nhật
 絞る	しぼる	vắt, siết chặt; tập trung
 比較	ひかく	so sánh
