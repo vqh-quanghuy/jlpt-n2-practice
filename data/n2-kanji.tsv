@@ -14,20 +14,20 @@
 司会	しかい	dẫn chương trình, MC
 上司	じょうし	cấp trên, sếp
 伺う	うかがう	đến thăm, hỏi thăm
-台詞	せりふ	lời bài hát
-歌詞	かし	danh từ
-名刺	めいし	động từ
+台詞	せりふ	lời thoại
+歌詞	かし	lời bài hát
+動詞	どうし	động từ
 詰める	つめる	nhét vào, lấp, dồn
 見詰める	みつめる	nhìn chằm chằm
 詰め込む	つめこむ	nhồi nhét, nhét đầy
-缶詰	かんづめ	đồ hộp; bị "nhốt" trong không gian kín
+缶詰	かんづめ	đồ hộp, thực phẩm đóng hộp, bị "nhốt" trong không gian kín
 評論	ひょうろん	bình luận, phê bình mang tính phân tích
 批評	ひひょう	phê bình, nhận xét, đánh giá
 誤り	あやまり	lỗi sai, nhầm lẫn
 誤解	ごかい	hiểu lầm, hiểu sai
 布団	ふとん	nệm, chăn đệm kiểu Nhật
 座布団	ざぶとん	đệm ngồi kiểu Nhật
-商談	しょうだん	tập thể, nhóm
+商談	しょうだん	Bàn bạc, đàm phán
 団体	だんたい	đoàn thể, tổ chức
 応援団	おうえんだん	đội cổ vũ
 検討	けんとう	cân nhắc, xem xét
@@ -105,7 +105,7 @@
 拒否	きょひ	sự từ chối, bác bỏ
 捕る	とる	bắt, bắt giữ
 捕まる	つかまる	bị bắt, bị tóm
-捕まえ	つかまえ	bắt, tóm
+捕まえ	つかまえる	bắt, tóm
 逮捕	たいほ	bắt giữ, bắt giam
 換える	かえる	thay, đổi
 言い換える	いいかえる	nói cách khác, diễn đạt lại
@@ -159,7 +159,7 @@
 浴衣	ゆかた	yukata (tên 1 trang phục truyền thống)
 溶ける	とける	tan ra
 溶け込む	とけこむ	hòa nhập, hòa tan vào
-洋館	ようかん	dung nham
+溶岩	ようがん	dung nham
 汁	しる	nước súp, nước cốt
 みそ汁	みそしる	canh miso
 沈む	しずむ	chìm, lặn
@@ -179,7 +179,7 @@
 湿る	しめる	ẩm, bị ướt
 湿気	しっけ	hơi ẩm, độ ẩm
 湿度	しつど	độ ẩm không khí
-乾く	かわく	khát nước
+渇く	かわく	khát nước
 清い	きよい	trong sạch, thuần khiết
 清掃	せいそう	dọn dẹp/ vệ sinh sạch sẽ
 清算	せいさん	thanh toán, thanh lý
@@ -209,7 +209,7 @@
 柱	はしら	cột, trụ
 枝	えだ	cành cây
 舞	まい	tấm, miếng
-がくしん	がくしん	trọng tâm, cốt lõi
+核心	かくしん	trọng tâm, cốt lõi
 植える	うえる	trồng (cây)
 植わる	うわる	được trồng
 植物	しょくぶつ	thực vật. cây cối
@@ -319,7 +319,7 @@
 照る	てる	chiếu sáng, tỏa sáng
 照らす	てらす	chiếu sáng, soi sáng
 照明	しょうめい	chiếu sáng, ánh sáng
-対照	たいしょ	so sánh, đối chiếu
+対照	たいしょう	so sánh, đối chiếu
 参照	さんしょう	tham khảo
 刑事	けいじ	cảnh sát hình sự, thanh tra
 差別	さべつ	sự phân biệt, phân biệt đối
@@ -423,7 +423,7 @@
 上旬	じょうじゅん	đầu tháng (10 ngày đầu tháng)
 中旬	ちゅうじゅん	giữa tháng
 昇る	のぼる	lên ,tăng lên
-上場	じょうじょう	tăng lên vọt lên
+上昇	じょうしょう	tăng lên vọt lên
 急上昇	きゅうじょうしょう	tăng vọt,tăng nhanh
 更ける	ふける	trở lên muộn,đêm khuya
 更新	こうしん	cập nhật,đổi mới
@@ -435,7 +435,7 @@
 乾かす	かわかす	làm khô,phơi khô
 乾燥	かんそう	sự khô ráo ,sự làm khô
 乾杯	かんぱい	cụng ly,chức mừng
-署名	しょめい	chứ ký
+署名	しょめい	chữ ký
 部署	ぶしょ	phòng ban,bộ phận
 消防署	しょうぼうしょ	trạm cứu hoả
 著しい	いちじるしい	nổi bật,rõ ràng
@@ -734,7 +734,7 @@
 炭	すみ	than
 二酸化炭素	にさんかたんそ	CO2
 缶	かん	lon
-崩す	くずす	đồ hộp, thực phẩm đóng hộp
+崩す	くずす	sụp, vỡ; đổi tiền
 崩れる	くずれる	phá vỡ, làm đổ
 岸	きし	bờ, bãi
 端	はし	đầu, cạnh, mép
@@ -1127,3 +1127,4 @@
 乏しい	とぼしい	nghèo nàn, thiếu thốn
 卵	たまご	quả trứng
 塾	じゅく	lớp học thêm, trung tâm học thêm
+名刺	めいし	danh thiếp
