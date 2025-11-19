@@ -221,9 +221,67 @@ class LocalStorageUtils {
         return randomItem.index;
     }
 
+    // Decrease encounter count for wrong answers
+    removeEncounter(quizType, mode, questionId, isRemindMode = false) {
+        const encounters = this.getEncounters();
+        if (!encounters) return;
+
+        const key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        
+        if (quizType === 'grammar') {
+            if (encounters[key] && encounters[key][questionId] && encounters[key][questionId] > 0) {
+                encounters[key][questionId]--;
+                if (encounters[key][questionId] === 0) {
+                    delete encounters[key][questionId];
+                }
+            }
+        } else {
+            if (encounters[key] && encounters[key][mode] && encounters[key][mode][questionId] && encounters[key][mode][questionId] > 0) {
+                encounters[key][mode][questionId]--;
+                if (encounters[key][mode][questionId] === 0) {
+                    delete encounters[key][mode][questionId];
+                }
+            }
+        }
+
+        localStorage.setItem(this.ENCOUNTERS_KEY, JSON.stringify(encounters));
+    }
+
     // Clear encounter data
     clearEncounters() {
         this.initializeEncounters();
+    }
+
+    // Last question storage
+    saveLastQuestion(quizType, questionIndex, mode = {}) {
+        const lastQuestions = this.getLastQuestions();
+        lastQuestions[quizType] = questionIndex;
+        lastQuestions[`${quizType}_mode`] = mode;
+        localStorage.setItem('last_questions', JSON.stringify(lastQuestions));
+    }
+
+    getLastQuestions() {
+        try {
+            const data = localStorage.getItem('last_questions');
+            return data ? JSON.parse(data) : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    getLastQuestion(quizType) {
+        const lastQuestions = this.getLastQuestions();
+        return {
+            questionIndex: lastQuestions[quizType] || null,
+            mode: lastQuestions[`${quizType}_mode`] || {}
+        };
+    }
+
+    clearLastQuestion(quizType) {
+        const lastQuestions = this.getLastQuestions();
+        delete lastQuestions[quizType];
+        delete lastQuestions[`${quizType}_mode`];
+        localStorage.setItem('last_questions', JSON.stringify(lastQuestions));
     }
 }
 

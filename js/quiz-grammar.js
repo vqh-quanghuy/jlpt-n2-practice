@@ -12,6 +12,13 @@ class GrammarQuiz {
     initialize() {
         const remindsCheckbox = document.getElementById('grammar-reminds');
         
+        // Restore checkbox state from localStorage
+        const lastQuestion = localStorageUtils.getLastQuestion('grammar');
+        if (lastQuestion.mode) {
+            this.useRemindsOnly = lastQuestion.mode.is_remind === 1;
+            if (remindsCheckbox) remindsCheckbox.checked = this.useRemindsOnly;
+        }
+        
         if (remindsCheckbox) {
             remindsCheckbox.addEventListener('change', (e) => {
                 this.useRemindsOnly = e.target.checked;
@@ -47,6 +54,64 @@ class GrammarQuiz {
         }
     }
 
+    loadLastOrNewQuestion() {
+        if (!dataLoader.isLoaded || this.availableData.length === 0) {
+            this.updateAvailableData();
+            return;
+        }
+
+        const lastQuestion = localStorageUtils.getLastQuestion('grammar');
+        
+        if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
+            const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            
+            if (savedIsRemind === this.useRemindsOnly) {
+                const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
+                if (questionItem && questionItem.data[1] && questionItem.data[1].trim() !== '') {
+                    this.currentQuestion = questionItem.data;
+                    this.currentIndex = questionItem.originalIndex;
+                    this.infoCardVisible = false;
+                    
+                    const grammarStructure = this.currentQuestion[0];
+                    const validAnswerOptions = this.availableData.filter(item => 
+                        item.originalIndex !== this.currentIndex && 
+                        item.data[1] && 
+                        item.data[1].trim() !== ''
+                    );
+
+                    if (validAnswerOptions.length >= 3) {
+                        const wrongIndices = [];
+                        while (wrongIndices.length < 3) {
+                            const randomIndex = Math.floor(Math.random() * validAnswerOptions.length);
+                            const item = validAnswerOptions[randomIndex];
+                            if (!wrongIndices.some(wi => wi.originalIndex === item.originalIndex)) {
+                                wrongIndices.push(item);
+                            }
+                        }
+
+                        const correctAnswer = {
+                            text: this.currentQuestion[1],
+                            isCorrect: true,
+                            data: this.currentQuestion
+                        };
+
+                        const wrongAnswers = wrongIndices.map(item => ({
+                            text: item.data[1],
+                            isCorrect: false,
+                            data: item.data
+                        }));
+
+                        const allAnswers = dataLoader.shuffleArray([correctAnswer, ...wrongAnswers]);
+                        this.displayQuestion(grammarStructure, allAnswers);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        this.generateNewQuestion();
+    }
+
     generateNewQuestion() {
         if (!dataLoader.isLoaded || this.availableData.length === 0) {
             this.updateAvailableData();
@@ -70,6 +135,11 @@ class GrammarQuiz {
 
         this.currentQuestion = questionItem.data;
         this.currentIndex = questionItem.originalIndex;
+
+        // Save current question state
+        localStorageUtils.saveLastQuestion('grammar', this.currentIndex, {
+            is_remind: this.useRemindsOnly ? 1 : 0
+        });
 
         const grammarStructure = this.currentQuestion[0];
         
@@ -170,6 +240,8 @@ class GrammarQuiz {
             selectedChip.classList.add('incorrect');
             // Add to reminds if wrong
             localStorageUtils.addToReminds('grammar', this.currentIndex);
+            // Remove encounter count for wrong answer
+            localStorageUtils.removeEncounter('grammar', null, this.currentIndex.toString(), this.useRemindsOnly);
             
             // Show correct answer
             answerChips.forEach((chip, index) => {
@@ -297,7 +369,7 @@ class GrammarQuiz {
 
     start() {
         this.updateAvailableData();
-        this.generateNewQuestion();
+        this.loadLastOrNewQuestion();
     }
 }
 

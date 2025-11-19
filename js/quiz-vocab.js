@@ -13,6 +13,16 @@ class VocabQuiz {
         const revertCheckbox = document.getElementById('vocab-revert');
         const remindsCheckbox = document.getElementById('vocab-reminds');
         
+        // Restore checkbox states from localStorage
+        const lastQuestion = localStorageUtils.getLastQuestion('vocab');
+        if (lastQuestion.mode) {
+            this.isRevertMode = lastQuestion.mode.is_revert === 1;
+            this.useRemindsOnly = lastQuestion.mode.is_remind === 1;
+            
+            if (revertCheckbox) revertCheckbox.checked = this.isRevertMode;
+            if (remindsCheckbox) remindsCheckbox.checked = this.useRemindsOnly;
+        }
+        
         if (revertCheckbox) {
             revertCheckbox.addEventListener('change', (e) => {
                 this.isRevertMode = e.target.checked;
@@ -55,6 +65,39 @@ class VocabQuiz {
         }
     }
 
+    loadLastOrNewQuestion() {
+        if (!dataLoader.isLoaded || this.availableData.length === 0) {
+            this.updateAvailableData();
+            return;
+        }
+
+        const lastQuestion = localStorageUtils.getLastQuestion('vocab');
+        
+        if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
+            // Restore last question if modes match
+            const savedIsRevert = lastQuestion.mode.is_revert === 1;
+            const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            
+            if (savedIsRevert === this.isRevertMode && savedIsRemind === this.useRemindsOnly) {
+                const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
+                if (questionItem) {
+                    this.currentQuestion = questionItem.data;
+                    this.currentIndex = questionItem.originalIndex;
+                    
+                    if (!this.isRevertMode) {
+                        this.generateNormalMode();
+                    } else {
+                        this.generateRevertMode();
+                    }
+                    return;
+                }
+            }
+        }
+        
+        // Generate new question if no valid last question
+        this.generateNewQuestion();
+    }
+
     generateNewQuestion() {
         if (!dataLoader.isLoaded || this.availableData.length === 0) {
             this.updateAvailableData();
@@ -69,6 +112,12 @@ class VocabQuiz {
         const questionItem = this.availableData.find(item => item.originalIndex === smartIndex);
         this.currentQuestion = questionItem.data;
         this.currentIndex = questionItem.originalIndex;
+
+        // Save current question state
+        localStorageUtils.saveLastQuestion('vocab', this.currentIndex, {
+            is_revert: this.isRevertMode ? 1 : 0,
+            is_remind: this.useRemindsOnly ? 1 : 0
+        });
 
         if (!this.isRevertMode) {
             this.generateNormalMode();
@@ -232,6 +281,9 @@ class VocabQuiz {
             selectedChip.classList.add('incorrect');
             // Add to reminds if wrong
             localStorageUtils.addToReminds('vocab', this.currentIndex);
+            // Remove encounter count for wrong answer
+            const mode = this.isRevertMode ? 'revert' : 'normal';
+            localStorageUtils.removeEncounter('vocab', mode, this.currentIndex.toString(), this.useRemindsOnly);
             
             // Show correct answer
             answerChips.forEach((chip, index) => {
@@ -281,7 +333,7 @@ class VocabQuiz {
 
     start() {
         this.updateAvailableData();
-        this.generateNewQuestion();
+        this.loadLastOrNewQuestion();
     }
 }
 
