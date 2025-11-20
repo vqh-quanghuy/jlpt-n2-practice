@@ -26,6 +26,9 @@ class App {
             if (typeof grammarQuiz !== 'undefined') grammarQuiz.initialize();
             if (typeof remindsManager !== 'undefined') remindsManager.initialize();
             if (typeof listManager !== 'undefined') listManager.initialize();
+            
+            // Initialize chapter dropdowns after data is loaded
+            this.initializeChapterDropdowns();
 
             // Set up navigation
             this.initializeNavigation();
@@ -172,6 +175,23 @@ class App {
     // Check if app is loading
     isAppLoading() {
         return this.isLoading;
+    }
+
+    // Initialize chapter dropdowns
+    initializeChapterDropdowns() {
+        // This will be called after data is loaded to populate chapter dropdowns
+        if (typeof vocabQuiz !== 'undefined' && vocabQuiz.populateChapterDropdown) {
+            vocabQuiz.populateChapterDropdown();
+        }
+        if (typeof kanjiQuiz !== 'undefined' && kanjiQuiz.populateChapterDropdown) {
+            kanjiQuiz.populateChapterDropdown();
+        }
+        if (typeof grammarQuiz !== 'undefined' && grammarQuiz.populateChapterDropdown) {
+            grammarQuiz.populateChapterDropdown();
+        }
+        if (typeof remindsManager !== 'undefined' && remindsManager.initializeChapterDropdowns) {
+            remindsManager.initializeChapterDropdowns();
+        }
     }
 
     // Restore state from URL hash

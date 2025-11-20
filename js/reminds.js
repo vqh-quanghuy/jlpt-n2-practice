@@ -3,6 +3,11 @@
 class RemindsManager {
     constructor() {
         this.currentTab = 'vocab';
+        this.selectedChapters = {
+            vocab: 'all',
+            kanji: 'all',
+            grammar: 'all'
+        };
     }
 
     initialize() {
@@ -16,6 +21,51 @@ class RemindsManager {
                     this.switchToTab(tab);
                 }
             });
+        });
+
+        // Initialize chapter dropdowns
+        this.initializeChapterDropdowns();
+    }
+
+    initializeChapterDropdowns() {
+        // Vocab chapter dropdown
+        const vocabChapterSelect = document.getElementById('reminds-vocab-chapter');
+        if (vocabChapterSelect) {
+            this.populateChapterDropdown(vocabChapterSelect, dataLoader.getVocabChapters());
+            vocabChapterSelect.addEventListener('change', (e) => {
+                this.selectedChapters.vocab = e.target.value;
+                this.loadVocabReminds();
+            });
+        }
+
+        // Kanji chapter dropdown
+        const kanjiChapterSelect = document.getElementById('reminds-kanji-chapter');
+        if (kanjiChapterSelect) {
+            this.populateChapterDropdown(kanjiChapterSelect, dataLoader.getKanjiChapters());
+            kanjiChapterSelect.addEventListener('change', (e) => {
+                this.selectedChapters.kanji = e.target.value;
+                this.loadKanjiReminds();
+            });
+        }
+
+        // Grammar chapter dropdown
+        const grammarChapterSelect = document.getElementById('reminds-grammar-chapter');
+        if (grammarChapterSelect) {
+            this.populateChapterDropdown(grammarChapterSelect, dataLoader.getGrammarChapters());
+            grammarChapterSelect.addEventListener('change', (e) => {
+                this.selectedChapters.grammar = e.target.value;
+                this.loadGrammarReminds();
+            });
+        }
+    }
+
+    populateChapterDropdown(selectElement, chapters) {
+        selectElement.innerHTML = '<option value="all">Tất cả</option>';
+        chapters.forEach(chapter => {
+            const option = document.createElement('option');
+            option.value = chapter;
+            option.textContent = ` ${chapter}`;
+            selectElement.appendChild(option);
         });
     }
 
@@ -47,7 +97,16 @@ class RemindsManager {
         const container = document.getElementById('reminds-vocab-table');
         const reminds = localStorageUtils.getRemindsByType('vocab');
         
-        if (reminds.length === 0) {
+        // Filter by chapter if not 'all'
+        let filteredReminds = reminds;
+        if (this.selectedChapters.vocab !== 'all') {
+            filteredReminds = reminds.filter(index => {
+                const chapter = dataLoader.getVocabChapter(index);
+                return chapter === parseInt(this.selectedChapters.vocab);
+            });
+        }
+        
+        if (filteredReminds.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-bookmark"></i>
@@ -58,7 +117,7 @@ class RemindsManager {
             return;
         }
 
-        const vocabData = reminds.map(index => ({
+        const vocabData = filteredReminds.map(index => ({
             index,
             data: dataLoader.getVocabByIndex(index)
         })).filter(item => item.data);
@@ -95,7 +154,16 @@ class RemindsManager {
         const container = document.getElementById('reminds-kanji-table');
         const reminds = localStorageUtils.getRemindsByType('kanji');
         
-        if (reminds.length === 0) {
+        // Filter by chapter if not 'all'
+        let filteredReminds = reminds;
+        if (this.selectedChapters.kanji !== 'all') {
+            filteredReminds = reminds.filter(index => {
+                const chapter = dataLoader.getKanjiChapter(index);
+                return chapter === parseInt(this.selectedChapters.kanji);
+            });
+        }
+        
+        if (filteredReminds.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-bookmark"></i>
@@ -106,7 +174,7 @@ class RemindsManager {
             return;
         }
 
-        const kanjiData = reminds.map(index => ({
+        const kanjiData = filteredReminds.map(index => ({
             index,
             data: dataLoader.getKanjiByIndex(index)
         })).filter(item => item.data);
@@ -143,7 +211,16 @@ class RemindsManager {
         const container = document.getElementById('reminds-grammar-cards');
         const reminds = localStorageUtils.getRemindsByType('grammar');
         
-        if (reminds.length === 0) {
+        // Filter by chapter if not 'all'
+        let filteredReminds = reminds;
+        if (this.selectedChapters.grammar !== 'all') {
+            filteredReminds = reminds.filter(index => {
+                const chapter = dataLoader.getGrammarChapter(index);
+                return chapter === parseInt(this.selectedChapters.grammar);
+            });
+        }
+        
+        if (filteredReminds.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-bookmark"></i>
@@ -154,7 +231,7 @@ class RemindsManager {
             return;
         }
 
-        const grammarData = reminds.map(index => ({
+        const grammarData = filteredReminds.map(index => ({
             index,
             data: dataLoader.getGrammarByIndex(index)
         })).filter(item => item.data);

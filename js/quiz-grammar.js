@@ -6,17 +6,25 @@ class GrammarQuiz {
         this.currentIndex = -1;
         this.availableData = [];
         this.useRemindsOnly = false;
+        this.selectedChapter = 'all';
         this.infoCardVisible = false;
     }
 
     initialize() {
         const remindsCheckbox = document.getElementById('grammar-reminds');
+        const chapterSelect = document.getElementById('grammar-chapter');
+        
+        // Populate chapter dropdown
+        this.populateChapterDropdown();
         
         // Restore checkbox state from localStorage
         const lastQuestion = localStorageUtils.getLastQuestion('grammar');
         if (lastQuestion.mode) {
             this.useRemindsOnly = lastQuestion.mode.is_remind === 1;
+            this.selectedChapter = lastQuestion.mode.chapter || 'all';
+            
             if (remindsCheckbox) remindsCheckbox.checked = this.useRemindsOnly;
+            if (chapterSelect) chapterSelect.value = this.selectedChapter;
         }
         
         if (remindsCheckbox) {
@@ -26,30 +34,67 @@ class GrammarQuiz {
                 this.generateNewQuestion();
             });
         }
+        
+        if (chapterSelect) {
+            chapterSelect.addEventListener('change', (e) => {
+                this.selectedChapter = e.target.value;
+                this.updateAvailableData();
+                this.generateNewQuestion();
+            });
+        }
     }
+
+    populateChapterDropdown() {
+        const chapterSelect = document.getElementById('grammar-chapter');
+        if (!chapterSelect) return;
+        
+        const chapters = dataLoader.getGrammarChapters();
+        chapterSelect.innerHTML = '<option value="all">Tất cả</option>';
+        
+        chapters.forEach(chapter => {
+            const option = document.createElement('option');
+            option.value = chapter;
+            option.textContent = `${chapter}`;
+            chapterSelect.appendChild(option);
+        });
+    }
+
+
 
     updateAvailableData() {
         if (this.useRemindsOnly) {
             const reminds = localStorageUtils.getRemindsByType('grammar');
-            if (reminds.length >= 4) {
-                this.availableData = reminds.map(index => ({
+            let filteredReminds = reminds;
+            
+            // Filter reminds by chapter if not 'all'
+            if (this.selectedChapter !== 'all') {
+                filteredReminds = reminds.filter(index => {
+                    const chapter = dataLoader.getGrammarChapter(index);
+                    return chapter === parseInt(this.selectedChapter);
+                });
+            }
+            
+            if (filteredReminds.length >= 4) {
+                this.availableData = filteredReminds.map(index => ({
                     data: dataLoader.getGrammarByIndex(index),
                     originalIndex: index
                 })).filter(item => item.data && item.data[1] && item.data[1].trim() !== '');
             } else {
-                // Not enough reminds, use all data
-                this.availableData = dataLoader.getGrammarData().map((data, index) => ({
+                // Not enough reminds, use chapter data
+                const chapterData = dataLoader.getGrammarByChapter(this.selectedChapter);
+                this.availableData = chapterData.map((data) => ({
                     data,
-                    originalIndex: index
+                    originalIndex: dataLoader.getGrammarData().indexOf(data)
                 })).filter(item => item.data && item.data[1] && item.data[1].trim() !== '');
                 document.getElementById('grammar-reminds').checked = false;
                 this.useRemindsOnly = false;
-                this.showNotification('Cần ít nhất 4 ngữ pháp trong danh sách ôn tập', 'warning');
+                this.showNotification('Cần ít nhất 4 ngữ pháp trong danh sách ôn tập cho chương này', 'warning');
             }
         } else {
-            this.availableData = dataLoader.getGrammarData().map((data, index) => ({
+            const chapterData = dataLoader.getGrammarByChapter(this.selectedChapter);
+            this.availableData = chapterData.map((data) => ({
                 data,
-                originalIndex: index
+                originalIndex: dataLoader.getGrammarData().indexOf(data)
             })).filter(item => item.data && item.data[1] && item.data[1].trim() !== '');
         }
     }
@@ -64,8 +109,9 @@ class GrammarQuiz {
         
         if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
             const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            const savedChapter = lastQuestion.mode.chapter || 'all';
             
-            if (savedIsRemind === this.useRemindsOnly) {
+            if (savedIsRemind === this.useRemindsOnly && savedChapter === this.selectedChapter) {
                 const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
                 if (questionItem && questionItem.data[1] && questionItem.data[1].trim() !== '') {
                     this.currentQuestion = questionItem.data;
@@ -138,7 +184,8 @@ class GrammarQuiz {
 
         // Save current question state
         localStorageUtils.saveLastQuestion('grammar', this.currentIndex, {
-            is_remind: this.useRemindsOnly ? 1 : 0
+            is_remind: this.useRemindsOnly ? 1 : 0,
+            chapter: this.selectedChapter
         });
 
         const grammarStructure = this.currentQuestion[0];
@@ -373,9 +420,10 @@ class GrammarQuiz {
         
         if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
             const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            const savedChapter = lastQuestion.mode.chapter || 'all';
             
             // If mode matches, update data and try to restore last question
-            if (savedIsRemind === this.useRemindsOnly) {
+            if (savedIsRemind === this.useRemindsOnly && savedChapter === this.selectedChapter) {
                 this.updateAvailableData();
                 const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
                 if (questionItem && questionItem.data[1] && questionItem.data[1].trim() !== '') {

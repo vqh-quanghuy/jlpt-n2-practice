@@ -125,6 +125,94 @@ class DataLoader {
         return this.grammarData;
     }
 
+    // Get unique chapters for each data type
+    getVocabChapters() {
+        const chapters = new Set();
+        this.vocabData.forEach(item => {
+            if (item[4] && item[4].trim() !== '') {
+                chapters.add(parseInt(item[4]));
+            }
+        });
+        return Array.from(chapters).sort((a, b) => a - b);
+    }
+
+    getKanjiChapters() {
+        const chapters = new Set();
+        this.kanjiData.forEach(item => {
+            if (item[3] && item[3].trim() !== '') {
+                chapters.add(parseInt(item[3]));
+            }
+        });
+        return Array.from(chapters).sort((a, b) => a - b);
+    }
+
+    getGrammarChapters() {
+        const chapters = new Set();
+        this.grammarData.forEach(item => {
+            if (item[4] && item[4].trim() !== '') {
+                chapters.add(parseInt(item[4]));
+            }
+        });
+        return Array.from(chapters).sort((a, b) => a - b);
+    }
+
+    // Get data filtered by chapter
+    getVocabByChapter(chapter) {
+        if (chapter === 'all') return this.vocabData;
+        return this.vocabData.filter(item => item[4] && parseInt(item[4]) === parseInt(chapter));
+    }
+
+    getKanjiByChapter(chapter) {
+        if (chapter === 'all') return this.kanjiData;
+        return this.kanjiData.filter(item => item[3] && parseInt(item[3]) === parseInt(chapter));
+    }
+
+    getGrammarByChapter(chapter) {
+        if (chapter === 'all') return this.grammarData;
+        return this.grammarData.filter(item => item[4] && parseInt(item[4]) === parseInt(chapter));
+    }
+
+    // Get data sorted by display order
+    getVocabSortedByOrder() {
+        return [...this.vocabData].sort((a, b) => {
+            const orderA = parseInt(a[5]) || 0;
+            const orderB = parseInt(b[5]) || 0;
+            return orderA - orderB;
+        });
+    }
+
+    getKanjiSortedByOrder() {
+        return [...this.kanjiData].sort((a, b) => {
+            const orderA = parseInt(a[4]) || 0;
+            const orderB = parseInt(b[4]) || 0;
+            return orderA - orderB;
+        });
+    }
+
+    getGrammarSortedByOrder() {
+        return [...this.grammarData].sort((a, b) => {
+            const orderA = parseInt(a[5]) || 0;
+            const orderB = parseInt(b[5]) || 0;
+            return orderA - orderB;
+        });
+    }
+
+    // Get chapter of an item
+    getVocabChapter(index) {
+        const item = this.vocabData[index];
+        return item && item[4] ? parseInt(item[4]) : null;
+    }
+
+    getKanjiChapter(index) {
+        const item = this.kanjiData[index];
+        return item && item[3] ? parseInt(item[3]) : null;
+    }
+
+    getGrammarChapter(index) {
+        const item = this.grammarData[index];
+        return item && item[4] ? parseInt(item[4]) : null;
+    }
+
     getVocabByIndex(index) {
         return this.vocabData[index] || null;
     }
@@ -138,8 +226,13 @@ class DataLoader {
     }
 
     // Get vocab items by type (hiragana, katakana, kanji, or special)
-    getVocabByType(type) {
-        return this.vocabData.filter((item, index) => {
+    getVocabByType(type, chapter = 'all') {
+        let filteredData = this.vocabData;
+        if (chapter !== 'all') {
+            filteredData = this.getVocabByChapter(chapter);
+        }
+        
+        return filteredData.filter((item, index) => {
             if (!item[0]) return false;
             
             const word = item[0];
@@ -154,7 +247,7 @@ class DataLoader {
                 default:
                     return !this.isHiragana(word) && !this.isKatakana(word) && !word.startsWith('〜');
             }
-        }).map((item, originalIndex) => ({
+        }).map((item) => ({
             data: item,
             originalIndex: this.vocabData.indexOf(item)
         }));

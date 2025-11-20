@@ -63,23 +63,28 @@
                 <div id="vocab-section" class="quiz-section active">
                     <div class="card border-0">
                         <div class="card-header bg-primary text-white py-2">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h6 class="mb-0"><i class="bi bi-book me-1"></i>Bài tập từ vựng</h6>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="d-flex gap-3">
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" id="vocab-revert">
-                                            <label class="form-check-label text-white-50" for="vocab-revert">
-                                                <i class="bi bi-arrow-repeat me-1"></i>Đảo ngược
-                                            </label>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" id="vocab-reminds">
-                                            <label class="form-check-label text-white-50" for="vocab-reminds">
-                                                <i class="bi bi-bookmark me-1"></i>Ôn tập
-                                            </label>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="bi bi-book me-1"></i>Bài tập từ vựng</h6>
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-white p-1" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-menu-app"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" id="vocab-settings-menu">
+                                        <div class="px-3 py-2" style="min-width: 200px;">
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" id="vocab-revert">
+                                                <label class="form-check-label" for="vocab-revert">Chế độ ngược</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" id="vocab-reminds">
+                                                <label class="form-check-label" for="vocab-reminds">Chỉ ôn tập</label>
+                                            </div>
+                                            <div class="mb-0">
+                                                <label class="form-label small">Chương:</label>
+                                                <select class="form-select form-select-sm" id="vocab-chapter">
+                                                    <option value="all">Tất cả</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -95,23 +100,28 @@
                 <div id="kanji-section" class="quiz-section">
                     <div class="card border-0">
                         <div class="card-header bg-primary text-white py-2">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h6 class="mb-0"><i class="bi bi-translate me-1"></i>Bài tập 漢字</h6>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="d-flex gap-3">
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" id="kanji-revert">
-                                            <label class="form-check-label text-white-50" for="kanji-revert">
-                                                <i class="bi bi-arrow-repeat me-1"></i>Đảo ngược
-                                            </label>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" id="kanji-reminds">
-                                            <label class="form-check-label text-white-50" for="kanji-reminds">
-                                                <i class="bi bi-bookmark me-1"></i>Ôn tập
-                                            </label>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="bi bi-translate me-1"></i>Bài tập 漢字</h6>
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-white p-1" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-menu-app"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" id="kanji-settings-menu">
+                                        <div class="px-3 py-2" style="min-width: 200px;">
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" id="kanji-revert">
+                                                <label class="form-check-label" for="kanji-revert">Chế độ ngược</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" id="kanji-reminds">
+                                                <label class="form-check-label" for="kanji-reminds">Chỉ ôn tập</label>
+                                            </div>
+                                            <div class="mb-0">
+                                                <label class="form-label small">Chương:</label>
+                                                <select class="form-select form-select-sm" id="kanji-chapter">
+                                                    <option value="all">Tất cả</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -127,16 +137,25 @@
                 <div id="grammar-section" class="quiz-section">
                     <div class="card border-0">
                         <div class="card-header bg-primary text-white py-2">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h6 class="mb-0"><i class="bi bi-journal-text me-1"></i>Bài tập ngữ pháp</h6>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="form-check form-switch mb-0">
-                                        <input class="form-check-input" type="checkbox" id="grammar-reminds">
-                                        <label class="form-check-label text-white-50" for="grammar-reminds">
-                                            <i class="bi bi-bookmark me-1"></i>Ôn tập
-                                        </label>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="bi bi-journal-text me-1"></i>Bài tập ngữ pháp</h6>
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-white p-1" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-menu-app"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" id="grammar-settings-menu">
+                                        <div class="px-3 py-2" style="min-width: 200px;">
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" id="grammar-reminds">
+                                                <label class="form-check-label" for="grammar-reminds">Chỉ ôn tập</label>
+                                            </div>
+                                            <div class="mb-0">
+                                                <label class="form-label small">Chương:</label>
+                                                <select class="form-select form-select-sm" id="grammar-chapter">
+                                                    <option value="all">Tất cả</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -173,13 +192,37 @@
                             </ul>
                             <div class="tab-content overflow-auto" id="reminds-content" style="max-height: calc(100vh - 200px);">
                                 <div class="tab-pane fade show active" id="reminds-vocab">
-                                    <div id="reminds-vocab-table" class="p-3"></div>
+                                    <div class="p-3">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <label class="me-2">Chương:</label>
+                                            <select class="form-select form-select-sm" id="reminds-vocab-chapter" style="max-width: 150px;">
+                                                <option value="all">Tất cả</option>
+                                            </select>
+                                        </div>
+                                        <div id="reminds-vocab-table"></div>
+                                    </div>
                                 </div>
                                 <div class="tab-pane fade" id="reminds-kanji">
-                                    <div id="reminds-kanji-table" class="p-3"></div>
+                                    <div class="p-3">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <label class="me-2">Chương:</label>
+                                            <select class="form-select form-select-sm" id="reminds-kanji-chapter" style="max-width: 150px;">
+                                                <option value="all">Tất cả</option>
+                                            </select>
+                                        </div>
+                                        <div id="reminds-kanji-table"></div>
+                                    </div>
                                 </div>
                                 <div class="tab-pane fade" id="reminds-grammar">
-                                    <div id="reminds-grammar-cards" class="p-3"></div>
+                                    <div class="p-3">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <label class="me-2">Chương:</label>
+                                            <select class="form-select form-select-sm" id="reminds-grammar-chapter" style="max-width: 150px;">
+                                                <option value="all">Tất cả</option>
+                                            </select>
+                                        </div>
+                                        <div id="reminds-grammar-cards"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
