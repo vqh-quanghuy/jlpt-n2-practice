@@ -55,7 +55,7 @@ class KanjiQuiz {
                 }));
                 document.getElementById('kanji-reminds').checked = false;
                 this.useRemindsOnly = false;
-                this.showNotification('Need at least 4 items in reminds list', 'warning');
+                this.showNotification('Cần ít nhất 4 kanji trong danh sách ôn tập', 'warning');
             }
         } else {
             this.availableData = dataLoader.getKanjiData().map((data, index) => ({
@@ -304,8 +304,34 @@ class KanjiQuiz {
     }
 
     start() {
+        // Check for last question first, then update data based on saved state
+        const lastQuestion = localStorageUtils.getLastQuestion('kanji');
+        
+        if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
+            const savedIsRevert = lastQuestion.mode.is_revert === 1;
+            const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            
+            // If modes match, update data and try to restore last question
+            if (savedIsRevert === this.isRevertMode && savedIsRemind === this.useRemindsOnly) {
+                this.updateAvailableData();
+                const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
+                if (questionItem) {
+                    this.currentQuestion = questionItem.data;
+                    this.currentIndex = questionItem.originalIndex;
+                    
+                    if (!this.isRevertMode) {
+                        this.generateNormalMode();
+                    } else {
+                        this.generateRevertMode();
+                    }
+                    return;
+                }
+            }
+        }
+        
+        // Fallback to normal flow
         this.updateAvailableData();
-        this.loadLastOrNewQuestion();
+        this.generateNewQuestion();
     }
 }
 

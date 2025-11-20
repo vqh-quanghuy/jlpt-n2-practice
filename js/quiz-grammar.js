@@ -44,7 +44,7 @@ class GrammarQuiz {
                 })).filter(item => item.data && item.data[1] && item.data[1].trim() !== '');
                 document.getElementById('grammar-reminds').checked = false;
                 this.useRemindsOnly = false;
-                this.showNotification('Need at least 4 items in reminds list');
+                this.showNotification('Cần ít nhất 4 ngữ pháp trong danh sách ôn tập', 'warning');
             }
         } else {
             this.availableData = dataLoader.getGrammarData().map((data, index) => ({
@@ -368,8 +368,61 @@ class GrammarQuiz {
     }
 
     start() {
+        // Check for last question first, then update data based on saved state
+        const lastQuestion = localStorageUtils.getLastQuestion('grammar');
+        
+        if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
+            const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            
+            // If mode matches, update data and try to restore last question
+            if (savedIsRemind === this.useRemindsOnly) {
+                this.updateAvailableData();
+                const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
+                if (questionItem && questionItem.data[1] && questionItem.data[1].trim() !== '') {
+                    this.currentQuestion = questionItem.data;
+                    this.currentIndex = questionItem.originalIndex;
+                    this.infoCardVisible = false;
+                    
+                    const grammarStructure = this.currentQuestion[0];
+                    const validAnswerOptions = this.availableData.filter(item => 
+                        item.originalIndex !== this.currentIndex && 
+                        item.data[1] && 
+                        item.data[1].trim() !== ''
+                    );
+
+                    if (validAnswerOptions.length >= 3) {
+                        const wrongIndices = [];
+                        while (wrongIndices.length < 3) {
+                            const randomIndex = Math.floor(Math.random() * validAnswerOptions.length);
+                            const item = validAnswerOptions[randomIndex];
+                            if (!wrongIndices.some(wi => wi.originalIndex === item.originalIndex)) {
+                                wrongIndices.push(item);
+                            }
+                        }
+
+                        const correctAnswer = {
+                            text: this.currentQuestion[1],
+                            isCorrect: true,
+                            data: this.currentQuestion
+                        };
+
+                        const wrongAnswers = wrongIndices.map(item => ({
+                            text: item.data[1],
+                            isCorrect: false,
+                            data: item.data
+                        }));
+
+                        const allAnswers = dataLoader.shuffleArray([correctAnswer, ...wrongAnswers]);
+                        this.displayQuestion(grammarStructure, allAnswers);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // Fallback to normal flow
         this.updateAvailableData();
-        this.loadLastOrNewQuestion();
+        this.generateNewQuestion();
     }
 }
 
