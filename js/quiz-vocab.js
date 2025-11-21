@@ -7,12 +7,16 @@ class VocabQuiz {
         this.availableData = [];
         this.isRevertMode = false;
         this.useRemindsOnly = false;
+        this.useReducplicativeOnly = false;
+        this.useKatakanaOnly = false;
         this.selectedChapter = 'all';
     }
 
     initialize() {
         const revertCheckbox = document.getElementById('vocab-revert');
         const remindsCheckbox = document.getElementById('vocab-reminds');
+        const reduplicativeCheckbox = document.getElementById('vocab-reduplicative');
+        const katakanaCheckbox = document.getElementById('vocab-katakana');
         const chapterSelect = document.getElementById('vocab-chapter');
         
         // Populate chapter dropdown
@@ -23,11 +27,21 @@ class VocabQuiz {
         if (lastQuestion.mode) {
             this.isRevertMode = lastQuestion.mode.is_revert === 1;
             this.useRemindsOnly = lastQuestion.mode.is_remind === 1;
+            this.useReducplicativeOnly = lastQuestion.mode.is_reduplicative === 1;
+            this.useKatakanaOnly = lastQuestion.mode.is_katakana === 1;
             this.selectedChapter = lastQuestion.mode.chapter || 'all';
             
             if (revertCheckbox) revertCheckbox.checked = this.isRevertMode;
             if (remindsCheckbox) remindsCheckbox.checked = this.useRemindsOnly;
-            if (chapterSelect) chapterSelect.value = this.selectedChapter;
+            if (reduplicativeCheckbox) reduplicativeCheckbox.checked = this.useReducplicativeOnly;
+            if (katakanaCheckbox) katakanaCheckbox.checked = this.useKatakanaOnly;
+            if (chapterSelect) {
+                chapterSelect.value = this.selectedChapter;
+                // Disable chapter select if special modes are active
+                if (this.useReducplicativeOnly || this.useKatakanaOnly) {
+                    chapterSelect.disabled = true;
+                }
+            }
         }
         
         if (revertCheckbox) {
@@ -40,6 +54,63 @@ class VocabQuiz {
         if (remindsCheckbox) {
             remindsCheckbox.addEventListener('change', (e) => {
                 this.useRemindsOnly = e.target.checked;
+                if (e.target.checked) {
+                    // Disable other filters when reminds is enabled
+                    this.useReducplicativeOnly = false;
+                    this.useKatakanaOnly = false;
+                    if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
+                    if (katakanaCheckbox) katakanaCheckbox.checked = false;
+                }
+                this.updateAvailableData();
+                this.generateNewQuestion();
+            });
+        }
+        
+        if (reduplicativeCheckbox) {
+            reduplicativeCheckbox.addEventListener('change', (e) => {
+                this.useReducplicativeOnly = e.target.checked;
+                if (e.target.checked) {
+                    // Disable other filters when reduplicative is enabled
+                    this.useRemindsOnly = false;
+                    this.useKatakanaOnly = false;
+                    if (remindsCheckbox) remindsCheckbox.checked = false;
+                    if (katakanaCheckbox) katakanaCheckbox.checked = false;
+                    
+                    // Reset to all chapters and disable chapter select
+                    this.selectedChapter = 'all';
+                    if (chapterSelect) {
+                        chapterSelect.value = 'all';
+                        chapterSelect.disabled = true;
+                    }
+                } else {
+                    // Re-enable chapter select when mode is disabled
+                    if (chapterSelect) chapterSelect.disabled = false;
+                }
+                this.updateAvailableData();
+                this.generateNewQuestion();
+            });
+        }
+        
+        if (katakanaCheckbox) {
+            katakanaCheckbox.addEventListener('change', (e) => {
+                this.useKatakanaOnly = e.target.checked;
+                if (e.target.checked) {
+                    // Disable other filters when katakana is enabled
+                    this.useRemindsOnly = false;
+                    this.useReducplicativeOnly = false;
+                    if (remindsCheckbox) remindsCheckbox.checked = false;
+                    if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
+                    
+                    // Reset to all chapters and disable chapter select
+                    this.selectedChapter = 'all';
+                    if (chapterSelect) {
+                        chapterSelect.value = 'all';
+                        chapterSelect.disabled = true;
+                    }
+                } else {
+                    // Re-enable chapter select when mode is disabled
+                    if (chapterSelect) chapterSelect.disabled = false;
+                }
                 this.updateAvailableData();
                 this.generateNewQuestion();
             });
@@ -47,6 +118,12 @@ class VocabQuiz {
         
         if (chapterSelect) {
             chapterSelect.addEventListener('change', (e) => {
+                // Prevent chapter changes when in special modes
+                if (this.useReducplicativeOnly || this.useKatakanaOnly) {
+                    e.target.value = 'all';
+                    return;
+                }
+                
                 this.selectedChapter = e.target.value;
                 this.updateAvailableData();
                 this.generateNewQuestion();
@@ -100,6 +177,12 @@ class VocabQuiz {
                 this.useRemindsOnly = false;
                 this.showNotification('Cần ít nhất 4 từ vựng trong danh sách ôn tập cho chương này', 'warning');
             }
+        } else if (this.useReducplicativeOnly) {
+            // Always use all chapters for reduplicative mode
+            this.availableData = dataLoader.getReducplicativeWords('all');
+        } else if (this.useKatakanaOnly) {
+            // Always use all chapters for katakana mode
+            this.availableData = dataLoader.getKatakanaWords('all');
         } else {
             const chapterData = dataLoader.getVocabByChapter(this.selectedChapter);
             this.availableData = chapterData.map((data) => ({
@@ -121,9 +204,15 @@ class VocabQuiz {
             // Restore last question if modes match
             const savedIsRevert = lastQuestion.mode.is_revert === 1;
             const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            const savedIsReducplicative = lastQuestion.mode.is_reduplicative === 1;
+            const savedIsKatakana = lastQuestion.mode.is_katakana === 1;
             const savedChapter = lastQuestion.mode.chapter || 'all';
             
-            if (savedIsRevert === this.isRevertMode && savedIsRemind === this.useRemindsOnly && savedChapter === this.selectedChapter) {
+            if (savedIsRevert === this.isRevertMode && 
+                savedIsRemind === this.useRemindsOnly && 
+                savedIsReducplicative === this.useReducplicativeOnly &&
+                savedIsKatakana === this.useKatakanaOnly &&
+                savedChapter === this.selectedChapter) {
                 const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
                 if (questionItem) {
                     this.currentQuestion = questionItem.data;
@@ -152,7 +241,11 @@ class VocabQuiz {
         // Get smart random question using encounter tracking
         const availableIndices = this.availableData.map(item => item.originalIndex);
         const mode = this.isRevertMode ? 'revert' : 'normal';
-        const smartIndex = localStorageUtils.getSmartRandomIndex(availableIndices, 'vocab', mode, this.useRemindsOnly);
+        let specialMode = null;
+        if (this.useReducplicativeOnly) specialMode = 'reduplicative';
+        else if (this.useKatakanaOnly) specialMode = 'katakana';
+        
+        const smartIndex = localStorageUtils.getSmartRandomIndex(availableIndices, 'vocab', mode, this.useRemindsOnly, specialMode);
         
         const questionItem = this.availableData.find(item => item.originalIndex === smartIndex);
         this.currentQuestion = questionItem.data;
@@ -162,6 +255,8 @@ class VocabQuiz {
         localStorageUtils.saveLastQuestion('vocab', this.currentIndex, {
             is_revert: this.isRevertMode ? 1 : 0,
             is_remind: this.useRemindsOnly ? 1 : 0,
+            is_reduplicative: this.useReducplicativeOnly ? 1 : 0,
+            is_katakana: this.useKatakanaOnly ? 1 : 0,
             chapter: this.selectedChapter
         });
 
@@ -329,7 +424,11 @@ class VocabQuiz {
             localStorageUtils.addToReminds('vocab', this.currentIndex);
             // Remove encounter count for wrong answer
             const mode = this.isRevertMode ? 'revert' : 'normal';
-            localStorageUtils.removeEncounter('vocab', mode, this.currentIndex.toString(), this.useRemindsOnly);
+            let specialMode = null;
+            if (this.useReducplicativeOnly) specialMode = 'reduplicative';
+            else if (this.useKatakanaOnly) specialMode = 'katakana';
+            
+            localStorageUtils.removeEncounter('vocab', mode, this.currentIndex.toString(), this.useRemindsOnly, specialMode);
             
             // Show correct answer
             answerChips.forEach((chip, index) => {
@@ -384,10 +483,16 @@ class VocabQuiz {
         if (lastQuestion.questionIndex !== null && lastQuestion.mode) {
             const savedIsRevert = lastQuestion.mode.is_revert === 1;
             const savedIsRemind = lastQuestion.mode.is_remind === 1;
+            const savedIsReducplicative = lastQuestion.mode.is_reduplicative === 1;
+            const savedIsKatakana = lastQuestion.mode.is_katakana === 1;
             const savedChapter = lastQuestion.mode.chapter || 'all';
             
             // If modes match, update data and try to restore last question
-            if (savedIsRevert === this.isRevertMode && savedIsRemind === this.useRemindsOnly && savedChapter === this.selectedChapter) {
+            if (savedIsRevert === this.isRevertMode && 
+                savedIsRemind === this.useRemindsOnly && 
+                savedIsReducplicative === this.useReducplicativeOnly &&
+                savedIsKatakana === this.useKatakanaOnly &&
+                savedChapter === this.selectedChapter) {
                 this.updateAvailableData();
                 const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
                 if (questionItem) {

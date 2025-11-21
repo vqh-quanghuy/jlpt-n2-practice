@@ -123,7 +123,7 @@ class RemindsManager {
         })).filter(item => item.data);
 
         const html = `
-            <table class="table table-striped remind-table">
+            <table class="table remind-table">
                 <thead>
                     <tr>
                         <th style="width: 25%;">Từ vựng</th>
@@ -180,7 +180,7 @@ class RemindsManager {
         })).filter(item => item.data);
 
         const html = `
-            <table class="table table-striped remind-table">
+            <table class="table remind-table">
                 <thead>
                     <tr>
                         <th style="width: 25%;">Kanji</th>

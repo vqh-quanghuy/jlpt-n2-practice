@@ -253,8 +253,49 @@ class DataLoader {
         }));
     }
 
+    // Check if vocab is reduplicative (hiragana only with empty pronunciation)
+    isReducplicativeWord(vocabItem) {
+        const [word, pronounce] = vocabItem;
+        return this.isHiragana(word) && (!pronounce || pronounce.trim() === '');
+    }
+
+    // Check if vocab is katakana (katakana only with empty pronunciation)
+    isKatakanaWord(vocabItem) {
+        const [word, pronounce] = vocabItem;
+        return this.isKatakana(word) && (!pronounce || pronounce.trim() === '');
+    }
+
+    // Get reduplicative words (từ láy)
+    getReducplicativeWords(chapter = 'all') {
+        let filteredData = this.vocabData;
+        if (chapter !== 'all') {
+            filteredData = this.getVocabByChapter(chapter);
+        }
+        
+        return filteredData.filter(item => this.isReducplicativeWord(item))
+            .map(item => ({
+                data: item,
+                originalIndex: this.vocabData.indexOf(item)
+            }));
+    }
+
+    // Get katakana words
+    getKatakanaWords(chapter = 'all') {
+        let filteredData = this.vocabData;
+        if (chapter !== 'all') {
+            filteredData = this.getVocabByChapter(chapter);
+        }
+        
+        return filteredData.filter(item => this.isKatakanaWord(item))
+            .map(item => ({
+                data: item,
+                originalIndex: this.vocabData.indexOf(item)
+            }));
+    }
+
     isHiragana(text) {
-        return /^[\u3040-\u309F]+$/.test(text);
+        // Check if text contains only hiragana characters (excluding katakana)
+        return /^[\u3041-\u3096]+$/.test(text) && !/[\u30A0-\u30FF]/.test(text);
     }
 
     isKatakana(text) {
@@ -270,7 +311,8 @@ class DataLoader {
         const [word, pronounce, meaning, sinoVietnamese] = vocabItem;
         let answer = '';
         
-        if (pronounce && pronounce !== '') {
+        // For reduplicative and katakana words, don't show pronunciation
+        if (pronounce && pronounce !== '' && !this.isReducplicativeWord(vocabItem) && !this.isKatakanaWord(vocabItem)) {
             answer += pronounce;
         }
         

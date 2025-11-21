@@ -149,12 +149,20 @@ class LocalStorageUtils {
         }
     }
 
-    // Record encounter for a question
-    recordEncounter(quizType, mode, questionId, isRemindMode = false) {
+    // Record encounter for a question with special mode support
+    recordEncounter(quizType, mode, questionId, isRemindMode = false, specialMode = null) {
         const encounters = this.getEncounters();
         if (!encounters) return;
 
-        const key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        let key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        if (specialMode) {
+            key += `_${specialMode}`;
+        }
+        
+        // Initialize key if it doesn't exist
+        if (!encounters[key]) {
+            encounters[key] = quizType === 'grammar' ? {} : { normal: {}, revert: {} };
+        }
         
         if (quizType === 'grammar') {
             if (!encounters[key][questionId]) {
@@ -174,22 +182,26 @@ class LocalStorageUtils {
         localStorage.setItem(this.ENCOUNTERS_KEY, JSON.stringify(encounters));
     }
 
-    // Get smart random question index
-    getSmartRandomIndex(availableIndices, quizType, mode, isRemindMode = false) {
+    // Get smart random question index with support for special modes
+    getSmartRandomIndex(availableIndices, quizType, mode, isRemindMode = false, specialMode = null) {
         if (availableIndices.length === 0) return -1;
         if (availableIndices.length === 1) {
-            this.recordEncounter(quizType, mode, availableIndices[0].toString(), isRemindMode);
+            this.recordEncounter(quizType, mode, availableIndices[0].toString(), isRemindMode, specialMode);
             return availableIndices[0];
         }
 
         const encounters = this.getEncounters();
         if (!encounters) {
             const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-            this.recordEncounter(quizType, mode, randomIndex.toString(), isRemindMode);
+            this.recordEncounter(quizType, mode, randomIndex.toString(), isRemindMode, specialMode);
             return randomIndex;
         }
 
-        const key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        let key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        if (specialMode) {
+            key += `_${specialMode}`;
+        }
+        
         let encounterData;
         
         if (quizType === 'grammar') {
@@ -203,7 +215,7 @@ class LocalStorageUtils {
         
         if (unencountered.length > 0) {
             const randomIndex = unencountered[Math.floor(Math.random() * unencountered.length)];
-            this.recordEncounter(quizType, mode, randomIndex.toString(), isRemindMode);
+            this.recordEncounter(quizType, mode, randomIndex.toString(), isRemindMode, specialMode);
             return randomIndex;
         }
 
@@ -217,16 +229,19 @@ class LocalStorageUtils {
         const leastEncountered = encounterCounts.filter(item => item.count === minCount);
         
         const randomItem = leastEncountered[Math.floor(Math.random() * leastEncountered.length)];
-        this.recordEncounter(quizType, mode, randomItem.index.toString(), isRemindMode);
+        this.recordEncounter(quizType, mode, randomItem.index.toString(), isRemindMode, specialMode);
         return randomItem.index;
     }
 
-    // Decrease encounter count for wrong answers
-    removeEncounter(quizType, mode, questionId, isRemindMode = false) {
+    // Decrease encounter count for wrong answers with special mode support
+    removeEncounter(quizType, mode, questionId, isRemindMode = false, specialMode = null) {
         const encounters = this.getEncounters();
         if (!encounters) return;
 
-        const key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        let key = isRemindMode ? `encounter_${quizType}_remind` : `encounter_${quizType}`;
+        if (specialMode) {
+            key += `_${specialMode}`;
+        }
         
         if (quizType === 'grammar') {
             if (encounters[key] && encounters[key][questionId] && encounters[key][questionId] > 0) {

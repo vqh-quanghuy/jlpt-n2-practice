@@ -412,6 +412,14 @@ main {
     border-color: #dee2e6;
 }
 
+.table tbody tr {
+    background-color: white;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
 
 
 /* Remove button styling */

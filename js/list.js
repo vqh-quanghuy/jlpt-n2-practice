@@ -8,6 +8,10 @@ class ListManager {
             kanji: 'all',
             grammar: 'all'
         };
+        this.vocabFilters = {
+            chapter: 'all',
+            type: 'all' // 'all', 'reduplicative', 'katakana'
+        };
     }
 
     initialize() {
@@ -66,8 +70,8 @@ class ListManager {
         const chapters = dataLoader.getVocabChapters();
         
         const html = `
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
                     <div class="d-flex align-items-center">
                         <label class="me-2">Chương:</label>
                         <select class="form-select form-select-sm" id="list-vocab-chapter" style="max-width: 150px;">
@@ -75,12 +79,20 @@ class ListManager {
                             ${chapters.map(chapter => `<option value="${chapter}">${chapter}</option>`).join('')}
                         </select>
                     </div>
-                    <span class="badge bg-primary fs-6">${vocabData.length} từ vựng</span>
+                    <div class="d-flex align-items-center">
+                        <label class="me-2">Loại:</label>
+                        <select class="form-select form-select-sm" id="list-vocab-type" style="max-width: 150px;">
+                            <option value="all">Tất cả</option>
+                            <option value="reduplicative">Hiragana</option>
+                            <option value="katakana">Katakana</option>
+                        </select>
+                    </div>
+                    <span class="badge bg-primary fs-6" id="vocab-count">${vocabData.length} từ vựng</span>
                 </div>
             </div>
             
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-hover">
                     <thead class="table-primary">
                         <tr>
                             <th style="width: 5%;">#</th>
@@ -98,18 +110,28 @@ class ListManager {
 
         container.innerHTML = html;
         
-        // Add chapter filter event listener
+        // Add filter event listeners
         const chapterSelect = document.getElementById('list-vocab-chapter');
+        const typeSelect = document.getElementById('list-vocab-type');
+        
         if (chapterSelect) {
-            chapterSelect.value = this.selectedChapters.vocab;
+            chapterSelect.value = this.vocabFilters.chapter;
             chapterSelect.addEventListener('change', (e) => {
-                this.selectedChapters.vocab = e.target.value;
-                this.filterVocabByChapter();
+                this.vocabFilters.chapter = e.target.value;
+                this.filterVocab();
+            });
+        }
+        
+        if (typeSelect) {
+            typeSelect.value = this.vocabFilters.type;
+            typeSelect.addEventListener('change', (e) => {
+                this.vocabFilters.type = e.target.value;
+                this.filterVocab();
             });
         }
         
         // Apply initial filter
-        this.filterVocabByChapter();
+        this.filterVocab();
     }
 
     renderVocabRows(vocabData) {
@@ -131,7 +153,7 @@ class ListManager {
         }).join('');
     }
 
-    filterVocabByChapter() {
+    filterVocab() {
         const tbody = document.getElementById('vocab-table-body');
         if (!tbody) return;
         
@@ -140,7 +162,24 @@ class ListManager {
         
         rows.forEach((row, index) => {
             const chapter = row.getAttribute('data-chapter');
-            const shouldShow = this.selectedChapters.vocab === 'all' || chapter === this.selectedChapters.vocab;
+            const originalIndex = parseInt(row.getAttribute('data-original-index'));
+            const vocabItem = dataLoader.getVocabByIndex(originalIndex);
+            
+            let shouldShow = true;
+            
+            // Filter by chapter
+            if (this.vocabFilters.chapter !== 'all' && chapter !== this.vocabFilters.chapter) {
+                shouldShow = false;
+            }
+            
+            // Filter by type
+            if (shouldShow && this.vocabFilters.type !== 'all' && vocabItem) {
+                if (this.vocabFilters.type === 'reduplicative' && !dataLoader.isReducplicativeWord(vocabItem)) {
+                    shouldShow = false;
+                } else if (this.vocabFilters.type === 'katakana' && !dataLoader.isKatakanaWord(vocabItem)) {
+                    shouldShow = false;
+                }
+            }
             
             if (shouldShow) {
                 row.style.display = '';
@@ -154,9 +193,15 @@ class ListManager {
         });
         
         // Update count badge
-        const countBadge = document.querySelector('#list-vocab-table .badge.bg-primary');
+        const countBadge = document.getElementById('vocab-count');
         if (countBadge) {
-            countBadge.textContent = `${visibleCount} từ vựng`;
+            let typeText = '';
+            if (this.vocabFilters.type === 'reduplicative') {
+                typeText = 'chỉ hiragana';
+            } else if (this.vocabFilters.type === 'katakana') {
+                typeText = 'katakana';
+            }
+            countBadge.textContent = `${visibleCount} từ vựng ${typeText} `;
         }
     }
 
@@ -192,7 +237,7 @@ class ListManager {
             </div>
             
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-hover">
                     <thead class="table-primary">
                         <tr>
                             <th style="width: 5%;">#</th>
