@@ -100,16 +100,16 @@
 抜ける	ぬける	(tóc, răng) rụng, xì (hơi), thiếu sót	1	100
 追い抜く	おいぬく	vượt qua, vượt mặt	1	101
 扱う	あつかう	xử lý, đối xử, sử dụng	1	102
-取り扱う	とりつかう	thao tác, xử lý, đối đãi	1	103
+取り扱う	とりあつかう	thao tác, xử lý, đối đãi	1	103
 拒む	こばむ	từ chối, khước từ	1	104
 拒否	きょひ	sự từ chối, bác bỏ	1	105
 捕る	とる	bắt, bắt giữ	1	106
 捕まる	つかまる	bị bắt, bị tóm	1	107
-捕まえ	つかまえる	bắt, tóm	1	108
+捕まえる	つかまえる	bắt, tóm	1	108
 逮捕	たいほ	bắt giữ, bắt giam	1	109
 換える	かえる	thay, đổi	1	110
 言い換える	いいかえる	nói cách khác, diễn đạt lại	1	111
-歓喜	かんき	thông gió, lưu thông không khí	1	112
+換気	かんき	thông gió, lưu thông không khí	1	112
 交換	こうかん	trao đổi, đổi chác	1	113
 転換	てんかん	chuyển đổi	1	114
 変換	へんかん	biến đổi, đổi	1	115
@@ -220,7 +220,7 @@
 消極的	しょうきょくてき	có tính tiêu cực, một cách tiêu cực	2	220
 積極的	せっきょくてき	có tính tích cực, một cách tích cực	2	221
 幼い	おさない	non nớt, trẻ con	2	222
-用紙	ようち	ấu trĩ, chưa trưởng thành	2	223
+幼稚	ようち	ấu trĩ, chưa trưởng thành	2	223
 幻想	げんそう	ảo tưởng	2	224
 幻覚	げんかく	ảo giác	2	225
 玄関	げんかん	sảnh, lối đi vào	2	226
@@ -280,7 +280,7 @@
 意志	いし	ý chí, quyết tâm	3	280
 志願	しがん	tình nguyện, đăng ký, khao khát,	3	281
 志望	しぼう	nguyện vọng, mong muốn	3	282
-恵み	めぐ	phúc lành, ân huệ	3	283
+恵み	めぐみ	phúc lành, ân huệ	3	283
 恩恵	おんけい	ân huệ, ơn nghĩa	3	284
 知恵	ちえ	trí tuệ, sự thông minh	3	285
 優れる	すぐれる	xuất sắc, vượt trội	3	286
@@ -305,7 +305,7 @@
 不愉快	ふゆかい	khó chịu, không vui	3	305
 怪しい	あやしい	đáng ngờ, kỳ lạ	3	306
 怪我	けが	vết thương, bị thương	3	307
-くやしい	くや	hối hận, tiếc nuối	3	308
+悔しい	くやしい	hối hận, tiếc nuối	3	308
 後悔	こうかい	hối tiếc, ăn năn	3	309
 不潔	ふけつ	bẩn thỉu, không sạch sẽ	3	310
 簡潔	かんけつ	ngắn gọn, súc tích	3	311
@@ -314,7 +314,7 @@
 喫茶店	きっさてん	quán cà phê	3	314
 喫煙	きつえん	hút thuốc	3	315
 召し上がる	めしあがる	Xin mời dùng (kính ngữ của ăn, uống)	3	316
-招く	まね	mời, rủ	3	317
+招く	まねく	mời, rủ	3	317
 招待	しょうたい	mời, lời mời	3	318
 照る	てる	chiếu sáng, tỏa sáng	3	319
 照らす	てらす	chiếu sáng, soi sáng	3	320
@@ -349,7 +349,7 @@
 資格	しかく	quyền hạn, trình độ, tư cách, bằng cấp	3	349
 資源	しげん	tài nguyên	3	350
 資本	しほん	vốn, tiền vốn; tư bản	3	351
-盗む	ぬす	trộm cắp	3	352
+盗む	ぬすむ	trộm cắp	3	352
 強盗	ごうとう	cướp, kẻ cướp, vụ cướp	3	353
 盗難	とうなん	vụ trộm cắp	3	354
 軟らかい	やわらかい	mềm, xốp	3	355
@@ -372,7 +372,7 @@
 要領	ようりょう	ý chính, cốt lõi	3	372
 元大統領	もとだいとうりょう	nguyên tổng thống	3	373
 領収書	りょうしゅうしょ	biên lai, hóa đơn	3	374
-頂く	いただ	nhận	3	375
+頂く	いただく	nhận	3	375
 頂点	ちょうてん	đỉnh, chóp, điểm cao nhất	3	376
 額	がく	số tiền, giá trị	3	377
 金額	きんがく	số tiền, giá trị tiền tệ	3	378
@@ -440,7 +440,7 @@
 消防署	しょうぼうしょ	trạm cứu hoả	4	440
 著しい	いちじるしい	nổi bật, rõ ràng	4	441
 著者	ちょしゃ	tác giả	4	442
-著書	ちょしゃ	sách, tác phẩm	4	443
+著書	ちょしょ	sách, tác phẩm	4	443
 内緒	ないしょ	bí mật, riêng tư	4	444
 顕微鏡	けんびきょう	kính hiểm vi	4	445
 境	さかい	ranh giới; giới hạn; biên giới	4	446
@@ -479,11 +479,11 @@
 専用	せんよう	dành riêng, chuyên dụng	4	479
 専攻	せんこう	chuyên ngành	4	480
 専属	せんぞく	thuộc về, chuyên trách	4	481
-博士	はかせ	tiến sĩ ,học giả	4	482
-博士	はくし	tiến sĩ, học giả(cách đọc khi đi cùng hoặc liên quan đến học vị)	4	483
+博士	はかせ	tiến sĩ, học giả	4	482
+博士	はくし	tiến sĩ, học giả (cách đọc khi đi cùng hoặc liên quan đến học vị)	4	483
 博物館	はくぶつかん	bảo tàng	4	484
 薄い	うすい	mỏng nhạt	4	485
-薄暗い	うすぐらい	mờ, u ám , âm u	4	486
+薄暗い	うすぐらい	mờ, u ám, âm u	4	486
 薄い明るい	うすあかるい	lờ mờ sáng	4	487
 薄れる	うすれる	làm loãng, làm nhạt	4	488
 薄める	うすめる	nhạt đi, phai nhạt	4	489
@@ -493,27 +493,27 @@
 憎らしい	にくらしい	đáng ghét, làm người ta căm phẫn	4	493
 憎む	にくむ	căm thù, ghét bỏ	4	494
 贈る	おくる	tặng quà	4	495
-一層	いっそう	hơn nữa,càng thêm	4	496
+一層	いっそう	hơn nữa, càng thêm	4	496
 高層	こうそう	cao tầng	4	497
 高層マンション	こうそうまんしょん	chung cư cao tầng	4	498
-差異	さい	khác biệt,sự khác nhau	4	499
-異常	いじょう	bất thường,bất ổn	4	500
-異国	いこく	nưới ngoài,quốc gia khác	4	501
-異色	いしょく	khác biệt,độc đáo	4	502
+差異	さい	khác biệt, sự khác nhau	4	499
+異常	いじょう	bất thường, bất ổn	4	500
+異国	いこく	nưới ngoài, quốc gia khác	4	501
+異色	いしょく	khác biệt, độc đáo	4	502
 異文化	いぶんか	văn hoá khác biệt	4	503
 異分野	いぶんや	lĩnh vực khác biệt	4	504
-畳む	たたむ	gấp,xếp lại	4	505
+畳む	たたむ	gấp, xếp lại	4	505
 畳	たたみ	chiếu tatami ( một loại chiếu truyền thống của Nhật Bản)	4	506
-折り畳み傘	おりたたみがさ	ô gấp ,ô du lịch	4	507
-〜畳	〜じょう	đơn vị đo diện tích,dùng cho các gian phòng kiểu Nhật	4	508
+折り畳み傘	おりたたみがさ	ô gấp, ô du lịch	4	507
+〜畳	〜じょう	đơn vị đo diện tích, dùng cho các gian phòng kiểu Nhật	4	508
 鼻水	はなみず	nước mũi	4	509
-略す	りゃくす	rút gọpn ,tóm gọn	4	510
-省略	しょうりゃく	lược bỏ,rút gọn	4	511
-簡略	かんりゃく	đơn giản hoá,giản lược	4	512
+略す	りゃくす	rút gọn, tóm gọn	4	510
+省略	しょうりゃく	lược bỏ, rút gọn	4	511
+簡略	かんりゃく	đơn giản hoá, giản lược	4	512
 戦略	せんりゃく	chiến lược	4	513
 家畜	かちく	gia súc	4	514
 雷	かみなり	sấm sét	4	515
-児童	じどう	trẻ em,thiếu nhi	4	516
+児童	じどう	trẻ em, thiếu nhi	4	516
 童話	どうわ	chuyện cổ tích, đồng thoại	4	517
 埋まる	うまる	bị chôn, lấp đầy	4	518
 埋める	うめる	chôn, lấp đầy	4	519
@@ -542,18 +542,18 @@
 硬い	かたい	cứng rắn	4	542
 砂	すな	cát	4	543
 砂漠	さばく	sa mạc	4	544
-周り	まわり	xung quanh,vây quanh	4	545
+周り	まわり	xung quanh, vây quanh	4	545
 周囲	しゅうい	vùng xung quanh, phạm vi, chu vi	4	546
-周辺	しゅうへん	khu vực xung quanh,vùng lân cận	4	547
-彫る	ほる	khắc,chạm khắc	4	548
-距離	きょり	khoảng cách ,cự ly	4	549
+周辺	しゅうへん	khu vực xung quanh, vùng lân cận	4	547
+彫る	ほる	khắc, chạm khắc	4	548
+距離	きょり	khoảng cách, cự ly	4	549
 踊る	おどる	nhảy múa	4	550
 踊り	おどり	múa, điệu múa, điệu nhảy	4	551
 実践	じっせん	thực tiễn, thực hành, áp dụng vào thực tế	4	552
 望遠鏡	ぼうえんきょう	kính thiên văn	4	553
 含む	ふくむ	bao gồm, chứa đựng	4	554
 お勧め	おすすめ	sự giới thiệu, khuyến nghị	5	555
-勧める	すすめ	đề nghị, khuyên	5	556
+勧める	すすめる	đề nghị, khuyên	5	556
 勧誘	かんゆう	mời gọi, dụ dỗ	5	557
 権利	けんり	quyền lợi, quyền hạn	5	558
 洗濯機	せんたくき	máy giặt	5	559
@@ -627,7 +627,7 @@
 悩み	なやみ	sự phiền muộn	5	627
 離す	はなす	thả, tách ra	5	628
 離れる	はなれる	rời đi, tách ra	5	629
-引き離す	ひきはなす	tách tời ra. kéo ra xa	5	630
+引き離す	ひきはなす	tách rời ra, kéo ra xa	5	630
 活字離れ	かつじばなれ	giảm đọc sách	5	631
 現実離れ	げんじつばなれ	xa rời thực tế	5	632
 誰か	だれか	ai đó	5	633
@@ -654,8 +654,8 @@
 壁	かべ	tường	5	654
 封筒	ふうとう	bao thư	5	655
 開封	かいふう	mở bao thư	5	656
-掛かる	かかる	tốn/mất; vướng vào; bị treo; bị ảnh hưởng/	5	657
-掛ける	かける	phụ thuộc	5	658
+掛かる	かかる	tốn/mất; vướng vào; bị treo; bị ảnh hưởng/ phụ thuộc	5	657
+掛ける	かける	treo; đeo; ngồi; gọi điện; bỏ vào; làm tốn	5	658
 追い掛ける	おいかける	đuổi theo	5	659
 話し掛ける	はなしかける	bắt chuyện, nói chuyện	5	660
 取り掛かる	とりかかる	bắt tay vào làm	5	661
@@ -679,7 +679,7 @@
 睡眠	すいみん	giấc ngủ	5	679
 牧場	ぼくじょう	nông trại, trang trại chăn nuôi	6	680
 攻める	せめる	tấn công	6	681
-選考	せんこう	chuyên ngành	6	682
+専攻	せんこう	chuyên ngành	6	682
 放す	はなす	thả, buông	6	683
 放れる	はなれる	thoát ra, được thả ra	6	684
 放り出す	ほうりだす	ném ra, đẩy ra	6	685
@@ -886,10 +886,10 @@
 犯罪	はんざい	tội phạm, tội ác	7	886
 犯人	はんにん	kẻ phạm tội, thủ phạm	7	887
 猫	ねこ	con mèo	7	888
-狭い	せま	hẹp, chật	7	889
+狭い	せまい	hẹp, chật	7	889
 中央	ちゅうおう	trung tâm, trung ương	7	890
 現状	げんじょう	tình hình hiện tại	7	891
-状況	状況	tình hình, hoàn cảnh	7	892
+状況	じょうきょう	tình hình, hoàn cảnh	7	892
 状態	じょうたい	trạng thái, tình trạng	7	893
 案内状	あんないじょう	thư mời, thư hướng dẫn	7	894
 クリーム状	クリームじょう	dạng kem, dạng như kem	7	895
@@ -897,7 +897,7 @@
 押し寄せる	おしよせる	dâng lên	7	897
 立ち寄る	たちよる	ghé qua	7	898
 近寄る	ちかよる	tiến gần, đến gần	7	899
-もちよる	もちよる	mang đến, mang theo để tụ lại	7	900
+持ち寄る	もちよる	mang đến, mang theo để tụ lại	7	900
 年寄り	としより	người già	7	901
 寄付	きふ	tặng, đóng góp	7	902
 ~冊	さつ	đơn vị đếm sách	7	903

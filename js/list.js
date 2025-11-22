@@ -10,8 +10,11 @@ class ListManager {
         };
         this.vocabFilters = {
             chapter: 'all',
-            type: 'all' // 'all', 'reduplicative', 'katakana'
+            type: 'all', // 'all', 'reduplicative', 'katakana'
+            search: ''
         };
+        this.kanjiSearch = '';
+        this.grammarSearch = '';
     }
 
     initialize() {
@@ -70,24 +73,30 @@ class ListManager {
         const chapters = dataLoader.getVocabChapters();
         
         const html = `
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-3 flex-wrap">
-                    <div class="d-flex align-items-center">
-                        <label class="me-2">Chương:</label>
-                        <select class="form-select form-select-sm" id="list-vocab-chapter" style="max-width: 150px;">
+            <div class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label small mb-1">Chương:</label>
+                        <select class="form-select form-select-sm" id="list-vocab-chapter">
                             <option value="all">Tất cả</option>
                             ${chapters.map(chapter => `<option value="${chapter}">${chapter}</option>`).join('')}
                         </select>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <label class="me-2">Loại:</label>
-                        <select class="form-select form-select-sm" id="list-vocab-type" style="max-width: 150px;">
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label small mb-1">Loại:</label>
+                        <select class="form-select form-select-sm" id="list-vocab-type">
                             <option value="all">Tất cả</option>
                             <option value="reduplicative">Hiragana</option>
                             <option value="katakana">Katakana</option>
                         </select>
                     </div>
-                    <span class="badge bg-primary fs-6" id="vocab-count">${vocabData.length} từ vựng</span>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label small mb-1">Tìm kiếm:</label>
+                        <input type="text" class="form-control form-control-sm" id="list-vocab-search" placeholder="Nhập từ vựng...">
+                    </div>
+                    <div class="col-12 col-sm-2 text-end">
+                        <span class="badge bg-primary fs-6" id="vocab-count">${vocabData.length} từ vựng</span>
+                    </div>
                 </div>
             </div>
             
@@ -113,6 +122,7 @@ class ListManager {
         // Add filter event listeners
         const chapterSelect = document.getElementById('list-vocab-chapter');
         const typeSelect = document.getElementById('list-vocab-type');
+        const searchInput = document.getElementById('list-vocab-search');
         
         if (chapterSelect) {
             chapterSelect.value = this.vocabFilters.chapter;
@@ -126,6 +136,13 @@ class ListManager {
             typeSelect.value = this.vocabFilters.type;
             typeSelect.addEventListener('change', (e) => {
                 this.vocabFilters.type = e.target.value;
+                this.filterVocab();
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.vocabFilters.search = e.target.value.toLowerCase();
                 this.filterVocab();
             });
         }
@@ -181,6 +198,14 @@ class ListManager {
                 }
             }
             
+            // Filter by search
+            if (shouldShow && this.vocabFilters.search && vocabItem) {
+                const word = vocabItem[0] || '';
+                if (!word.toLowerCase().includes(this.vocabFilters.search)) {
+                    shouldShow = false;
+                }
+            }
+            
             if (shouldShow) {
                 row.style.display = '';
                 visibleCount++;
@@ -223,16 +248,22 @@ class ListManager {
         const chapters = dataLoader.getKanjiChapters();
 
         const html = `
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center">
-                        <label class="me-2">Chương:</label>
-                        <select class="form-select form-select-sm" id="list-kanji-chapter" style="max-width: 150px;">
+            <div class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-6 col-sm-4">
+                        <label class="form-label small mb-1">Chương:</label>
+                        <select class="form-select form-select-sm" id="list-kanji-chapter">
                             <option value="all">Tất cả</option>
                             ${chapters.map(chapter => `<option value="${chapter}">${chapter}</option>`).join('')}
                         </select>
                     </div>
-                    <span class="badge bg-primary fs-6">${kanjiData.length} kanji</span>
+                    <div class="col-6 col-sm-6">
+                        <label class="form-label small mb-1">Tìm kiếm:</label>
+                        <input type="text" class="form-control form-control-sm" id="list-kanji-search" placeholder="Nhập kanji...">
+                    </div>
+                    <div class="col-12 col-sm-2 text-end">
+                        <span class="badge bg-primary fs-6" id="kanji-count">${kanjiData.length} kanji</span>
+                    </div>
                 </div>
             </div>
             
@@ -255,12 +286,21 @@ class ListManager {
 
         container.innerHTML = html;
         
-        // Add chapter filter event listener
+        // Add filter event listeners
         const chapterSelect = document.getElementById('list-kanji-chapter');
+        const searchInput = document.getElementById('list-kanji-search');
+        
         if (chapterSelect) {
             chapterSelect.value = this.selectedChapters.kanji;
             chapterSelect.addEventListener('change', (e) => {
                 this.selectedChapters.kanji = e.target.value;
+                this.filterKanjiByChapter();
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.kanjiSearch = e.target.value.toLowerCase();
                 this.filterKanjiByChapter();
             });
         }
@@ -297,7 +337,18 @@ class ListManager {
         
         rows.forEach((row, index) => {
             const chapter = row.getAttribute('data-chapter');
-            const shouldShow = this.selectedChapters.kanji === 'all' || chapter === this.selectedChapters.kanji;
+            const originalIndex = parseInt(row.getAttribute('data-original-index'));
+            const kanjiItem = dataLoader.getKanjiByIndex(originalIndex);
+            
+            let shouldShow = this.selectedChapters.kanji === 'all' || chapter === this.selectedChapters.kanji;
+            
+            // Filter by search
+            if (shouldShow && this.kanjiSearch && kanjiItem) {
+                const kanji = kanjiItem[0] || '';
+                if (!kanji.toLowerCase().includes(this.kanjiSearch)) {
+                    shouldShow = false;
+                }
+            }
             
             if (shouldShow) {
                 row.style.display = '';
@@ -311,7 +362,7 @@ class ListManager {
         });
         
         // Update count badge
-        const countBadge = document.querySelector('#list-kanji-table .badge.bg-primary');
+        const countBadge = document.getElementById('kanji-count');
         if (countBadge) {
             countBadge.textContent = `${visibleCount} kanji`;
         }
@@ -335,16 +386,22 @@ class ListManager {
         const chapters = dataLoader.getGrammarChapters();
 
         const html = `
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center">
-                        <label class="me-2">Chương:</label>
-                        <select class="form-select form-select-sm" id="list-grammar-chapter" style="max-width: 150px;">
+            <div class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-6 col-sm-4">
+                        <label class="form-label small mb-1">Chương:</label>
+                        <select class="form-select form-select-sm" id="list-grammar-chapter">
                             <option value="all">Tất cả</option>
                             ${chapters.map(chapter => `<option value="${chapter}">${chapter}</option>`).join('')}
                         </select>
                     </div>
-                    <span class="badge bg-primary fs-6">${grammarData.length} ngữ pháp</span>
+                    <div class="col-6 col-sm-6">
+                        <label class="form-label small mb-1">Tìm kiếm:</label>
+                        <input type="text" class="form-control form-control-sm" id="list-grammar-search" placeholder="Nhập ngữ pháp...">
+                    </div>
+                    <div class="col-12 col-sm-2 text-end">
+                        <span class="badge bg-primary fs-6" id="grammar-count">${grammarData.length} ngữ pháp</span>
+                    </div>
                 </div>
             </div>
             
@@ -355,12 +412,21 @@ class ListManager {
 
         container.innerHTML = html;
         
-        // Add chapter filter event listener
+        // Add filter event listeners
         const chapterSelect = document.getElementById('list-grammar-chapter');
+        const searchInput = document.getElementById('list-grammar-search');
+        
         if (chapterSelect) {
             chapterSelect.value = this.selectedChapters.grammar;
             chapterSelect.addEventListener('change', (e) => {
                 this.selectedChapters.grammar = e.target.value;
+                this.filterGrammarByChapter();
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.grammarSearch = e.target.value.toLowerCase();
                 this.filterGrammarByChapter();
             });
         }
@@ -467,10 +533,18 @@ class ListManager {
             });
         }
         
+        // Filter by search
+        if (this.grammarSearch) {
+            filteredData = filteredData.filter(item => {
+                const structure = item[0] || '';
+                return structure.toLowerCase().includes(this.grammarSearch);
+            });
+        }
+        
         container.innerHTML = this.renderGrammarCards(filteredData);
         
         // Update count badge
-        const countBadge = document.querySelector('#list-grammar-cards .badge.bg-primary');
+        const countBadge = document.getElementById('grammar-count');
         if (countBadge) {
             countBadge.textContent = `${filteredData.length} ngữ pháp`;
         }
