@@ -2,8 +2,10 @@
 
 class LocalStorageUtils {
     constructor() {
+        this.isPersonalMode = window.location.pathname.includes('/personal');
         this.REMINDS_KEY = 'reminds';
         this.ENCOUNTERS_KEY = 'encounter_times';
+        this.LAST_QUESTIONS_KEY = 'last_questions';
         this.initializeReminds();
         this.initializeEncounters();
     }
@@ -14,9 +16,31 @@ class LocalStorageUtils {
             const initialReminds = {
                 vocab: [],
                 kanji: [],
-                grammar: []
+                grammar: [],
+                personal_other: [],
+                personal_past: [],
+                personal_reduplicative: []
             };
             localStorage.setItem(this.REMINDS_KEY, JSON.stringify(initialReminds));
+        } else {
+            // Ensure personal keys exist in existing reminds
+            const reminds = this.getReminds();
+            let updated = false;
+            if (!reminds.personal_other) {
+                reminds.personal_other = [];
+                updated = true;
+            }
+            if (!reminds.personal_past) {
+                reminds.personal_past = [];
+                updated = true;
+            }
+            if (!reminds.personal_reduplicative) {
+                reminds.personal_reduplicative = [];
+                updated = true;
+            }
+            if (updated) {
+                localStorage.setItem(this.REMINDS_KEY, JSON.stringify(reminds));
+            }
         }
     }
 
@@ -37,6 +61,31 @@ class LocalStorageUtils {
         return reminds && reminds[type] ? reminds[type] : [];
     }
 
+    // Get reminds by type (same as getRemindsByType)
+    getCrossRemindsByType(type) {
+        return this.getRemindsByType(type);
+    }
+
+    // Get all remind types for personal mode
+    getAllRemindTypes() {
+        const reminds = this.getReminds();
+        if (!reminds) return {};
+        
+        return {
+            vocab: reminds.vocab || [],
+            kanji: reminds.kanji || [],
+            grammar: reminds.grammar || [],
+            personal_other: reminds.personal_other || [],
+            personal_past: reminds.personal_past || [],
+            personal_reduplicative: reminds.personal_reduplicative || []
+        };
+    }
+
+    // Get reminds (same storage for both modes)
+    getCrossReminds() {
+        return this.getReminds() || {};
+    }
+
     // Add item to reminds
     addToReminds(type, index) {
         const reminds = this.getReminds();
@@ -46,9 +95,12 @@ class LocalStorageUtils {
             reminds[type] = [];
         }
 
+        // Convert long personal keys to short format
+        const shortIndex = this.convertToShortKey(type, index);
+        
         // Check if already exists
-        if (!reminds[type].includes(index)) {
-            reminds[type].push(index);
+        if (!reminds[type].includes(shortIndex)) {
+            reminds[type].push(shortIndex);
             localStorage.setItem(this.REMINDS_KEY, JSON.stringify(reminds));
             return true;
         }
@@ -60,7 +112,10 @@ class LocalStorageUtils {
         const reminds = this.getReminds();
         if (!reminds || !reminds[type]) return false;
 
-        const indexPos = reminds[type].indexOf(index);
+        // Convert long personal keys to short format
+        const shortIndex = this.convertToShortKey(type, index);
+        
+        const indexPos = reminds[type].indexOf(shortIndex);
         if (indexPos > -1) {
             reminds[type].splice(indexPos, 1);
             localStorage.setItem(this.REMINDS_KEY, JSON.stringify(reminds));
@@ -72,13 +127,20 @@ class LocalStorageUtils {
     // Check if item is in reminds
     isInReminds(type, index) {
         const reminds = this.getRemindsByType(type);
-        return reminds.includes(index);
+        const shortIndex = this.convertToShortKey(type, index);
+        return reminds.includes(shortIndex);
     }
 
     // Get count of reminds by type
     getRemindCount(type) {
         const reminds = this.getRemindsByType(type);
         return reminds.length;
+    }
+
+    // Get total count of all reminds
+    getTotalRemindCount() {
+        const allReminds = this.getAllRemindTypes();
+        return Object.values(allReminds).reduce((total, arr) => total + arr.length, 0);
     }
 
     // Clear all reminds for a specific type
@@ -96,7 +158,10 @@ class LocalStorageUtils {
         const initialReminds = {
             vocab: [],
             kanji: [],
-            grammar: []
+            grammar: [],
+            personal_other: [],
+            personal_past: [],
+            personal_reduplicative: []
         };
         localStorage.setItem(this.REMINDS_KEY, JSON.stringify(initialReminds));
         return true;
@@ -113,6 +178,10 @@ class LocalStorageUtils {
         try {
             const reminds = JSON.parse(data);
             if (reminds && typeof reminds === 'object' && reminds.vocab && reminds.kanji && reminds.grammar) {
+                // Ensure personal keys exist
+                if (!reminds.personal_other) reminds.personal_other = [];
+                if (!reminds.personal_past) reminds.personal_past = [];
+                if (!reminds.personal_reduplicative) reminds.personal_reduplicative = [];
                 localStorage.setItem(this.REMINDS_KEY, JSON.stringify(reminds));
                 return true;
             }
@@ -159,24 +228,27 @@ class LocalStorageUtils {
             key += `_${specialMode}`;
         }
         
+        // Convert long personal keys to short format
+        const shortQuestionId = this.convertToShortKey(specialMode, questionId);
+        
         // Initialize key if it doesn't exist
         if (!encounters[key]) {
             encounters[key] = quizType === 'grammar' ? {} : { normal: {}, revert: {} };
         }
         
         if (quizType === 'grammar') {
-            if (!encounters[key][questionId]) {
-                encounters[key][questionId] = 0;
+            if (!encounters[key][shortQuestionId]) {
+                encounters[key][shortQuestionId] = 0;
             }
-            encounters[key][questionId]++;
+            encounters[key][shortQuestionId]++;
         } else {
             if (!encounters[key][mode]) {
                 encounters[key][mode] = {};
             }
-            if (!encounters[key][mode][questionId]) {
-                encounters[key][mode][questionId] = 0;
+            if (!encounters[key][mode][shortQuestionId]) {
+                encounters[key][mode][shortQuestionId] = 0;
             }
-            encounters[key][mode][questionId]++;
+            encounters[key][mode][shortQuestionId]++;
         }
 
         localStorage.setItem(this.ENCOUNTERS_KEY, JSON.stringify(encounters));
@@ -211,7 +283,10 @@ class LocalStorageUtils {
         }
 
         // Find unencountered questions first
-        const unencountered = availableIndices.filter(index => !encounterData[index.toString()]);
+        const unencountered = availableIndices.filter(index => {
+            const shortKey = this.convertToShortKey(specialMode, index.toString());
+            return !encounterData[shortKey];
+        });
         
         if (unencountered.length > 0) {
             const randomIndex = unencountered[Math.floor(Math.random() * unencountered.length)];
@@ -220,10 +295,13 @@ class LocalStorageUtils {
         }
 
         // All questions encountered, find minimum encounter count
-        const encounterCounts = availableIndices.map(index => ({
-            index,
-            count: encounterData[index.toString()] || 0
-        }));
+        const encounterCounts = availableIndices.map(index => {
+            const shortKey = this.convertToShortKey(specialMode, index.toString());
+            return {
+                index,
+                count: encounterData[shortKey] || 0
+            };
+        });
         
         const minCount = Math.min(...encounterCounts.map(item => item.count));
         const leastEncountered = encounterCounts.filter(item => item.count === minCount);
@@ -243,18 +321,21 @@ class LocalStorageUtils {
             key += `_${specialMode}`;
         }
         
+        // Convert long personal keys to short format
+        const shortQuestionId = this.convertToShortKey(specialMode, questionId);
+        
         if (quizType === 'grammar') {
-            if (encounters[key] && encounters[key][questionId] && encounters[key][questionId] > 0) {
-                encounters[key][questionId]--;
-                if (encounters[key][questionId] === 0) {
-                    delete encounters[key][questionId];
+            if (encounters[key] && encounters[key][shortQuestionId] && encounters[key][shortQuestionId] > 0) {
+                encounters[key][shortQuestionId]--;
+                if (encounters[key][shortQuestionId] === 0) {
+                    delete encounters[key][shortQuestionId];
                 }
             }
         } else {
-            if (encounters[key] && encounters[key][mode] && encounters[key][mode][questionId] && encounters[key][mode][questionId] > 0) {
-                encounters[key][mode][questionId]--;
-                if (encounters[key][mode][questionId] === 0) {
-                    delete encounters[key][mode][questionId];
+            if (encounters[key] && encounters[key][mode] && encounters[key][mode][shortQuestionId] && encounters[key][mode][shortQuestionId] > 0) {
+                encounters[key][mode][shortQuestionId]--;
+                if (encounters[key][mode][shortQuestionId] === 0) {
+                    delete encounters[key][mode][shortQuestionId];
                 }
             }
         }
@@ -272,12 +353,12 @@ class LocalStorageUtils {
         const lastQuestions = this.getLastQuestions();
         lastQuestions[quizType] = questionIndex;
         lastQuestions[`${quizType}_mode`] = mode;
-        localStorage.setItem('last_questions', JSON.stringify(lastQuestions));
+        localStorage.setItem(this.LAST_QUESTIONS_KEY, JSON.stringify(lastQuestions));
     }
 
     getLastQuestions() {
         try {
-            const data = localStorage.getItem('last_questions');
+            const data = localStorage.getItem(this.LAST_QUESTIONS_KEY);
             return data ? JSON.parse(data) : {};
         } catch (error) {
             return {};
@@ -296,7 +377,38 @@ class LocalStorageUtils {
         const lastQuestions = this.getLastQuestions();
         delete lastQuestions[quizType];
         delete lastQuestions[`${quizType}_mode`];
-        localStorage.setItem('last_questions', JSON.stringify(lastQuestions));
+        localStorage.setItem(this.LAST_QUESTIONS_KEY, JSON.stringify(lastQuestions));
+    }
+
+    // Convert long personal keys to short format
+    convertToShortKey(type, index) {
+        if (typeof index !== 'string') return index;
+        
+        // Convert personal mode keys to short format
+        if (index.startsWith('personal_past_')) {
+            return `tv-${index.replace('personal_past_', '')}`;
+        } else if (index.startsWith('personal_reduplicative_')) {
+            return `rv-${index.replace('personal_reduplicative_', '')}`;
+        } else if (index.startsWith('personal_other_')) {
+            return `ov-${index.replace('personal_other_', '')}`;
+        }
+        
+        return index;
+    }
+
+    // Convert short keys back to long format for internal use
+    convertFromShortKey(shortKey) {
+        if (typeof shortKey !== 'string') return shortKey;
+        
+        if (shortKey.startsWith('tv-')) {
+            return `personal_past_${shortKey.replace('tv-', '')}`;
+        } else if (shortKey.startsWith('rv-')) {
+            return `personal_reduplicative_${shortKey.replace('rv-', '')}`;
+        } else if (shortKey.startsWith('ov-')) {
+            return `personal_other_${shortKey.replace('ov-', '')}`;
+        }
+        
+        return shortKey;
     }
 }
 

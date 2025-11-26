@@ -1,4 +1,4 @@
-const CACHE_NAME = 'n2-practice-v2';
+const CACHE_NAME = 'n2-practice-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -13,7 +13,10 @@ const urlsToCache = [
   './js/list.js',
   './data/n2-vocab.tsv',
   './data/n2-kanji.tsv',
-  './data/n2-grammar.tsv'
+  './data/n2-grammar.tsv',
+  './data/n2-other-vocabs.tsv',
+  './data/n2-past-test-vocab.tsv',
+  './data/n2-reduplicative.tsv'
 ];
 
 self.addEventListener('install', event => {

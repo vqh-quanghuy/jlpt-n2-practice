@@ -8,6 +8,7 @@ class RemindsManager {
             kanji: 'all',
             grammar: 'all'
         };
+        this.vocabRemindType = 'all';
     }
 
     initialize() {
@@ -28,15 +29,7 @@ class RemindsManager {
     }
 
     initializeChapterDropdowns() {
-        // Vocab chapter dropdown
-        const vocabChapterSelect = document.getElementById('reminds-vocab-chapter');
-        if (vocabChapterSelect) {
-            this.populateChapterDropdown(vocabChapterSelect, dataLoader.getVocabChapters());
-            vocabChapterSelect.addEventListener('change', (e) => {
-                this.selectedChapters.vocab = e.target.value;
-                this.loadVocabReminds();
-            });
-        }
+        // Vocab filters are now handled in setupVocabRemindFilters
 
         // Kanji chapter dropdown
         const kanjiChapterSelect = document.getElementById('reminds-kanji-chapter');
@@ -95,34 +88,127 @@ class RemindsManager {
 
     loadVocabReminds() {
         const container = document.getElementById('reminds-vocab-table');
-        const reminds = localStorageUtils.getRemindsByType('vocab');
         
-        // Filter by chapter if not 'all'
-        let filteredReminds = reminds;
-        if (this.selectedChapters.vocab !== 'all') {
-            filteredReminds = reminds.filter(index => {
+        // Add type selector with cross-loading support
+        const typeSelector = dataLoader.isInPersonalMode() ? `
+            <div class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-6">
+                        <label class="me-2">Chương:</label>
+                        <select class="form-select form-select-sm" id="reminds-vocab-chapter" style="max-width: 150px;">
+                            <option value="all">Tất cả</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="me-2">Loại:</label>
+                        <select class="form-select form-select-sm" id="reminds-vocab-type" style="max-width: 150px;">
+                            <option value="all">Tất cả</option>
+                            <option value="vocab">Từ vựng thường</option>
+                            <option value="personal_other">Từ mở rộng</option>
+                            <option value="personal_past">Từ các năm trước</option>
+                            <option value="personal_reduplicative">Từ láy</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        ` : `
+            <div class="mb-3">
+                <div class="d-flex align-items-center">
+                    <label class="me-2">Chương:</label>
+                    <select class="form-select form-select-sm" id="reminds-vocab-chapter" style="max-width: 150px;">
+                        <option value="all">Tất cả</option>
+                    </select>
+                </div>
+            </div>
+        `;
+        
+        // Get reminds (same storage for both modes)
+        const regularReminds = localStorageUtils.getRemindsByType('vocab');
+        const personalOtherReminds = dataLoader.isInPersonalMode() ? localStorageUtils.getRemindsByType('personal_other') : [];
+        const personalPastReminds = dataLoader.isInPersonalMode() ? localStorageUtils.getRemindsByType('personal_past') : [];
+        const personalReducplicativeReminds = dataLoader.isInPersonalMode() ? localStorageUtils.getRemindsByType('personal_reduplicative') : [];
+        
+        const selectedType = this.vocabRemindType || 'all';
+        
+        // Filter by type first
+        let filteredRegularReminds = selectedType === 'all' || selectedType === 'vocab' ? regularReminds : [];
+        let filteredPersonalOther = selectedType === 'all' || selectedType === 'personal_other' ? personalOtherReminds : [];
+        let filteredPersonalPast = selectedType === 'all' || selectedType === 'personal_past' ? personalPastReminds : [];
+        let filteredPersonalReducplicative = selectedType === 'all' || selectedType === 'personal_reduplicative' ? personalReducplicativeReminds : [];
+        
+        // Filter regular reminds by chapter if not 'all' and chapter selector is enabled
+        const chapterDisabled = selectedType === 'personal_other' || selectedType === 'personal_past' || selectedType === 'personal_reduplicative';
+        if (!chapterDisabled && this.selectedChapters.vocab !== 'all') {
+            filteredRegularReminds = filteredRegularReminds.filter(index => {
                 const chapter = dataLoader.getVocabChapter(index);
                 return chapter === parseInt(this.selectedChapters.vocab);
             });
         }
         
-        if (filteredReminds.length === 0) {
-            container.innerHTML = `
+        const totalReminds = filteredRegularReminds.length + filteredPersonalOther.length + filteredPersonalPast.length + filteredPersonalReducplicative.length;
+        
+        if (totalReminds === 0) {
+            container.innerHTML = typeSelector + `
                 <div class="empty-state">
                     <i class="bi bi-bookmark"></i>
                     <h5>No vocabulary reminds yet</h5>
                     <p>Words you get wrong or pin will appear here</p>
                 </div>
             `;
+            this.setupVocabRemindFilters(chapterDisabled);
             return;
         }
 
-        const vocabData = filteredReminds.map(index => ({
+        // Regular vocab data
+        const regularVocabData = filteredRegularReminds.map(index => ({
             index,
-            data: dataLoader.getVocabByIndex(index)
+            data: dataLoader.getVocabByIndex(index),
+            type: 'vocab',
+            typeLabel: dataLoader.isInPersonalMode() ? 'Từ vựng thường' : null
         })).filter(item => item.data);
+        
+        // Personal other words data
+        const personalOtherData = filteredPersonalOther.map(index => {
+            // Convert back from short key if needed
+            const longIndex = localStorageUtils.convertFromShortKey(index);
+            const numIndex = parseInt(String(longIndex).replace('personal_other_', ''));
+            return {
+                index,
+                data: dataLoader.getPersonalOtherWords()[numIndex],
+                type: 'personal_other',
+                typeLabel: 'Từ mở rộng'
+            };
+        }).filter(item => item.data);
+        
+        // Personal past test words data
+        const personalPastData = filteredPersonalPast.map(index => {
+            // Convert back from short key if needed
+            const longIndex = localStorageUtils.convertFromShortKey(index);
+            const numIndex = parseInt(String(longIndex).replace('personal_past_', ''));
+            return {
+                index,
+                data: dataLoader.getPersonalPastTestWords()[numIndex],
+                type: 'personal_past',
+                typeLabel: 'Từ các năm trước'
+            };
+        }).filter(item => item.data);
+        
+        // Personal reduplicative words data
+        const personalReducplicativeData = filteredPersonalReducplicative.map(index => {
+            // Convert back from short key if needed
+            const longIndex = localStorageUtils.convertFromShortKey(index);
+            const numIndex = parseInt(String(longIndex).replace('personal_reduplicative_', ''));
+            return {
+                index,
+                data: dataLoader.getPersonalReducplicativeWords()[numIndex],
+                type: 'personal_reduplicative',
+                typeLabel: 'Từ láy'
+            };
+        }).filter(item => item.data);
+        
+        const allVocabData = [...regularVocabData, ...personalOtherData, ...personalPastData, ...personalReducplicativeData];
 
-        const html = `
+        const html = typeSelector + `
             <table class="table remind-table">
                 <thead>
                     <tr>
@@ -132,12 +218,12 @@ class RemindsManager {
                     </tr>
                 </thead>
                 <tbody>
-                    ${vocabData.map(item => `
+                    ${allVocabData.map(item => `
                         <tr>
-                            <td><strong>${item.data[0]}</strong></td>
-                            <td>${dataLoader.formatVocabAnswer(item.data)}</td>
+                            <td><strong>${item.data[0]}</strong>${dataLoader.isInPersonalMode() && item.typeLabel ? ` <small class="text-muted">(${item.typeLabel})</small>` : ''}</td>
+                            <td>${this.formatVocabAnswerForRemind(item.data, item.type)}</td>
                             <td>
-                                <button class="remind-btn" onclick="remindsManager.removeVocabRemind(${item.index})">
+                                <button class="remind-btn" onclick="remindsManager.removeVocabRemind('${item.index}', '${item.type}')">
                                     <i class="bi bi-x"></i>
                                 </button>
                             </td>
@@ -148,10 +234,71 @@ class RemindsManager {
         `;
 
         container.innerHTML = html;
+        this.setupVocabRemindFilters(chapterDisabled);
+    }
+    
+    setupVocabRemindFilters(chapterDisabled) {
+        const chapterSelect = document.getElementById('reminds-vocab-chapter');
+        const typeSelect = document.getElementById('reminds-vocab-type');
+        
+        if (chapterSelect) {
+            // Populate chapter dropdown
+            const chapters = dataLoader.getVocabChapters();
+            chapterSelect.innerHTML = '<option value="all">Tất cả</option>';
+            chapters.forEach(chapter => {
+                const option = document.createElement('option');
+                option.value = chapter;
+                option.textContent = ` ${chapter}`;
+                chapterSelect.appendChild(option);
+            });
+            
+            chapterSelect.value = this.selectedChapters.vocab;
+            chapterSelect.disabled = chapterDisabled;
+            
+            chapterSelect.addEventListener('change', (e) => {
+                this.selectedChapters.vocab = e.target.value;
+                this.loadVocabReminds();
+            });
+        }
+        
+        if (typeSelect) {
+            typeSelect.value = this.vocabRemindType || 'all';
+            typeSelect.addEventListener('change', (e) => {
+                this.vocabRemindType = e.target.value;
+                // Update chapter selector state based on type
+                if (chapterSelect) {
+                    const isPersonalType = ['personal_other', 'personal_past', 'personal_reduplicative'].includes(e.target.value);
+                    chapterSelect.disabled = isPersonalType;
+                    if (isPersonalType) {
+                        this.selectedChapters.vocab = 'all';
+                        chapterSelect.value = 'all';
+                    }
+                }
+                this.loadVocabReminds();
+            });
+        }
+    }
+    
+    formatVocabAnswerForRemind(vocabItem, type) {
+        if (type === 'personal_other') {
+            return vocabItem[2] || vocabItem[1] || ''; // meaning only
+        } else if (type === 'personal_past') {
+            const parts = [];
+            if (vocabItem[1]) parts.push(vocabItem[1]); // pronunciation
+            if (vocabItem[2]) parts.push(vocabItem[2]); // meaning
+            if (vocabItem[3]) parts.push(`(${vocabItem[3]})`); // test time
+            return parts.join(' - ');
+        } else if (type === 'personal_reduplicative') {
+            return vocabItem[1] || ''; // meaning only for reduplicative
+        } else {
+            return dataLoader.formatVocabAnswer(vocabItem);
+        }
     }
 
     loadKanjiReminds() {
         const container = document.getElementById('reminds-kanji-table');
+        
+        // Get reminds (same storage for both modes)
         const reminds = localStorageUtils.getRemindsByType('kanji');
         
         // Filter by chapter if not 'all'
@@ -163,7 +310,9 @@ class RemindsManager {
             });
         }
         
-        if (filteredReminds.length === 0) {
+        const totalReminds = filteredReminds.length;
+        
+        if (totalReminds === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-bookmark"></i>
@@ -174,9 +323,11 @@ class RemindsManager {
             return;
         }
 
+        // Kanji data
         const kanjiData = filteredReminds.map(index => ({
             index,
-            data: dataLoader.getKanjiByIndex(index)
+            data: dataLoader.getKanjiByIndex(index),
+            type: 'kanji'
         })).filter(item => item.data);
 
         const html = `
@@ -209,6 +360,8 @@ class RemindsManager {
 
     loadGrammarReminds() {
         const container = document.getElementById('reminds-grammar-cards');
+        
+        // Get reminds (same storage for both modes)
         const reminds = localStorageUtils.getRemindsByType('grammar');
         
         // Filter by chapter if not 'all'
@@ -220,7 +373,9 @@ class RemindsManager {
             });
         }
         
-        if (filteredReminds.length === 0) {
+        const totalReminds = filteredReminds.length;
+        
+        if (totalReminds === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-bookmark"></i>
@@ -231,9 +386,11 @@ class RemindsManager {
             return;
         }
 
+        // Grammar data
         const grammarData = filteredReminds.map(index => ({
             index,
-            data: dataLoader.getGrammarByIndex(index)
+            data: dataLoader.getGrammarByIndex(index),
+            type: 'grammar'
         })).filter(item => item.data);
 
         const html = grammarData.map(item => {
@@ -329,9 +486,9 @@ class RemindsManager {
         });
     }
 
-    removeVocabRemind(index) {
+    removeVocabRemind(index, type = 'vocab') {
         this.showConfirmModal('Bạn có chắc muốn xóa từ vựng này khỏi danh sách ôn tập?', () => {
-            localStorageUtils.removeFromReminds('vocab', index);
+            localStorageUtils.removeFromReminds(type, index);
             this.loadVocabReminds();
             this.showNotification('Đã xoá từ vựng khỏi danh sách ôn tập');
         });

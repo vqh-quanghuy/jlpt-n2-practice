@@ -5,23 +5,44 @@ class DataLoader {
         this.vocabData = [];
         this.kanjiData = [];
         this.grammarData = [];
+        this.personalOtherWords = [];
+        this.personalPastTestWords = [];
+        this.personalReducplicativeWords = [];
         this.isLoaded = false;
+        this.isPersonalMode = window.location.pathname.includes('/personal');
     }
 
     async loadAllData() {
         try {
             console.log('Starting to load data files...');
             
-            const [vocabResponse, kanjiResponse, grammarResponse] = await Promise.all([
-                fetch('data/n2-vocab.tsv'),
-                fetch('data/n2-kanji.tsv'),
-                fetch('data/n2-grammar.tsv')
-            ]);
+            const basePath = this.isPersonalMode ? '../data/' : 'data/';
+            const fetchPromises = [
+                fetch(`${basePath}n2-vocab.tsv`),
+                fetch(`${basePath}n2-kanji.tsv`),
+                fetch(`${basePath}n2-grammar.tsv`)
+            ];
+
+            // Load personal data if in personal mode
+            if (this.isPersonalMode) {
+                fetchPromises.push(
+                    fetch(`${basePath}n2-other-vocabs.tsv`),
+                    fetch(`${basePath}n2-past-test-vocab.tsv`),
+                    fetch(`${basePath}n2-reduplicative.tsv`)
+                );
+            }
+
+            const responses = await Promise.all(fetchPromises);
+            const [vocabResponse, kanjiResponse, grammarResponse, ...personalResponses] = responses;
 
             console.log('Fetch responses:', {
                 vocab: vocabResponse.ok,
                 kanji: kanjiResponse.ok,
-                grammar: grammarResponse.ok
+                grammar: grammarResponse.ok,
+                ...(this.isPersonalMode && {
+                    personalOther: personalResponses[0]?.ok,
+                    personalPast: personalResponses[1]?.ok
+                })
             });
 
             if (!vocabResponse.ok || !kanjiResponse.ok || !grammarResponse.ok) {
@@ -32,21 +53,31 @@ class DataLoader {
             const kanjiText = await kanjiResponse.text();
             const grammarText = await grammarResponse.text();
 
-            console.log('Text lengths:', {
-                vocab: vocabText.length,
-                kanji: kanjiText.length,
-                grammar: grammarText.length
-            });
-
             this.vocabData = this.parseTSV(vocabText);
             this.kanjiData = this.parseTSV(kanjiText);
             this.grammarData = this.parseTSV(grammarText);
+
+            // Load personal data if available
+            if (this.isPersonalMode && personalResponses[0]?.ok && personalResponses[1]?.ok && personalResponses[2]?.ok) {
+                const personalOtherText = await personalResponses[0].text();
+                const personalPastText = await personalResponses[1].text();
+                const reduplicativeText = await personalResponses[2].text();
+                
+                this.personalOtherWords = this.parseTSV(personalOtherText);
+                this.personalPastTestWords = this.parseTSV(personalPastText);
+                this.personalReducplicativeWords = this.parseTSV(reduplicativeText);
+            }
 
             this.isLoaded = true;
             console.log('Data loaded successfully:', {
                 vocab: this.vocabData.length,
                 kanji: this.kanjiData.length,
-                grammar: this.grammarData.length
+                grammar: this.grammarData.length,
+                ...(this.isPersonalMode && {
+                    personalOther: this.personalOtherWords.length,
+                    personalPast: this.personalPastTestWords.length,
+                    personalReducplicative: this.personalReducplicativeWords.length
+                })
             });
 
             return true;
@@ -115,6 +146,22 @@ class DataLoader {
 
     getVocabData() {
         return this.vocabData;
+    }
+
+    getPersonalOtherWords() {
+        return this.personalOtherWords;
+    }
+
+    getPersonalPastTestWords() {
+        return this.personalPastTestWords;
+    }
+
+    getPersonalReducplicativeWords() {
+        return this.personalReducplicativeWords;
+    }
+
+    isInPersonalMode() {
+        return this.isPersonalMode;
     }
 
     getKanjiData() {
@@ -232,25 +279,38 @@ class DataLoader {
             filteredData = this.getVocabByChapter(chapter);
         }
         
-        return filteredData.filter((item, index) => {
-            if (!item[0]) return false;
+        const results = [];
+        filteredData.forEach((item, index) => {
+            if (!item[0]) return;
             
             const word = item[0];
+            let matches = false;
+            
             switch (type) {
                 case 'hiragana':
-                    return this.isHiragana(word);
+                    matches = this.isHiragana(word);
+                    break;
                 case 'katakana':
-                    return this.isKatakana(word);
+                    matches = this.isKatakana(word);
+                    break;
                 case 'special':
-                    return word.startsWith('〜');
+                    matches = word.startsWith('〜');
+                    break;
                 case 'kanji':
                 default:
-                    return !this.isHiragana(word) && !this.isKatakana(word) && !word.startsWith('〜');
+                    matches = !this.isHiragana(word) && !this.isKatakana(word) && !word.startsWith('〜');
+                    break;
             }
-        }).map((item) => ({
-            data: item,
-            originalIndex: this.vocabData.indexOf(item)
-        }));
+            
+            if (matches) {
+                results.push({
+                    data: [...item], // Create a copy to avoid circular references
+                    originalIndex: chapter === 'all' ? index : this.vocabData.findIndex(vocabItem => vocabItem === item)
+                });
+            }
+        });
+        
+        return results;
     }
 
     // Check if vocab is reduplicative (hiragana only with empty pronunciation)
@@ -272,11 +332,17 @@ class DataLoader {
             filteredData = this.getVocabByChapter(chapter);
         }
         
-        return filteredData.filter(item => this.isReducplicativeWord(item))
-            .map(item => ({
-                data: item,
-                originalIndex: this.vocabData.indexOf(item)
-            }));
+        const results = [];
+        filteredData.forEach((item, index) => {
+            if (this.isReducplicativeWord(item)) {
+                results.push({
+                    data: [...item], // Create a copy to avoid circular references
+                    originalIndex: chapter === 'all' ? index : this.vocabData.findIndex(vocabItem => vocabItem === item)
+                });
+            }
+        });
+        
+        return results;
     }
 
     // Get katakana words
@@ -286,11 +352,17 @@ class DataLoader {
             filteredData = this.getVocabByChapter(chapter);
         }
         
-        return filteredData.filter(item => this.isKatakanaWord(item))
-            .map(item => ({
-                data: item,
-                originalIndex: this.vocabData.indexOf(item)
-            }));
+        const results = [];
+        filteredData.forEach((item, index) => {
+            if (this.isKatakanaWord(item)) {
+                results.push({
+                    data: [...item], // Create a copy to avoid circular references
+                    originalIndex: chapter === 'all' ? index : this.vocabData.findIndex(vocabItem => vocabItem === item)
+                });
+            }
+        });
+        
+        return results;
     }
 
     isHiragana(text) {
@@ -308,8 +380,40 @@ class DataLoader {
 
     // Format vocab answer based on available data
     formatVocabAnswer(vocabItem) {
-        const [word, pronounce, meaning, sinoVietnamese] = vocabItem;
+        const [word, pronounce, meaning, sinoVietnamese, example] = vocabItem;
         let answer = '';
+        
+        // For personal other words (3 columns: hiragana + hiragana + meaning)
+        if (this.isPersonalOtherWord(vocabItem)) {
+            if (meaning && meaning !== '') {
+                answer = meaning; // In 3-column format, column 3 is the meaning
+            }
+            return answer || word;
+        }
+        
+        // For personal reduplicative words (2 columns: hiragana + meaning)
+        if (this.isPersonalReducplicativeWord(vocabItem)) {
+            if (pronounce && pronounce !== '') {
+                answer = pronounce; // In 2-column format, column 2 is the meaning
+            }
+            return answer || word;
+        }
+        
+        // For personal past test words (5 columns) - include example but not sino-vietnamese
+        if (this.isPersonalPastTestWord(vocabItem)) {
+            if (pronounce && pronounce !== '') {
+                answer += pronounce;
+            }
+            if (meaning && meaning !== '') {
+                if (answer) answer += ' - ';
+                answer += meaning;
+            }
+            if (example && example.trim() !== '') {
+                if (answer) answer += ' - ';
+                answer += example;
+            }
+            return answer || word;
+        }
         
         // For reduplicative and katakana words, don't show pronunciation
         if (pronounce && pronounce !== '' && !this.isReducplicativeWord(vocabItem) && !this.isKatakanaWord(vocabItem)) {
@@ -327,6 +431,21 @@ class DataLoader {
         }
         
         return answer || word;
+    }
+
+    // Check if vocab is personal other word (3 columns: hiragana + hiragana + meaning)
+    isPersonalOtherWord(vocabItem) {
+        return this.isPersonalMode && vocabItem.length === 3 && !vocabItem[2].includes('/') && this.isHiragana(vocabItem[0]);
+    }
+
+    // Check if vocab is personal reduplicative word (2 columns: hiragana + meaning)
+    isPersonalReducplicativeWord(vocabItem) {
+        return this.isPersonalMode && vocabItem.length === 2 && this.isHiragana(vocabItem[0]);
+    }
+
+    // Check if vocab is personal past test word (5 columns)
+    isPersonalPastTestWord(vocabItem) {
+        return this.isPersonalMode && vocabItem.length >= 4 && vocabItem[3] && vocabItem[3].includes('/');
     }
 
     // Format kanji answer

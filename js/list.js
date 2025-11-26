@@ -58,8 +58,12 @@ class ListManager {
     loadVocabList() {
         const container = document.getElementById('list-vocab-table');
         const vocabData = dataLoader.getVocabSortedByOrder();
+        const personalOtherData = dataLoader.isInPersonalMode() ? dataLoader.getPersonalOtherWords() : [];
+        const personalPastData = dataLoader.isInPersonalMode() ? dataLoader.getPersonalPastTestWords() : [];
         
-        if (vocabData.length === 0) {
+        const totalCount = vocabData.length + personalOtherData.length + personalPastData.length;
+        
+        if (totalCount === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-list-ul"></i>
@@ -80,14 +84,18 @@ class ListManager {
                         <select class="form-select form-select-sm" id="list-vocab-chapter">
                             <option value="all">Tất cả</option>
                             ${chapters.map(chapter => `<option value="${chapter}">${chapter}</option>`).join('')}
+                            ${dataLoader.isInPersonalMode() ? '<option value="personal">Cá nhân</option>' : ''}
                         </select>
                     </div>
                     <div class="col-6 col-sm-3">
                         <label class="form-label small mb-1">Loại:</label>
                         <select class="form-select form-select-sm" id="list-vocab-type">
                             <option value="all">Tất cả</option>
+                            <option value="vocab">Từ vựng thường</option>
                             <option value="reduplicative">Hiragana</option>
                             <option value="katakana">Katakana</option>
+                            ${dataLoader.isInPersonalMode() ? '<option value="personal_other">Từ mở rộng</option>' : ''}
+                            ${dataLoader.isInPersonalMode() ? '<option value="personal_past">Từ các năm trước</option>' : ''}
                         </select>
                     </div>
                     <div class="col-12 col-sm-4">
@@ -95,7 +103,7 @@ class ListManager {
                         <input type="text" class="form-control form-control-sm" id="list-vocab-search" placeholder="Nhập từ vựng...">
                     </div>
                     <div class="col-12 col-sm-2 text-end">
-                        <span class="badge bg-primary fs-6" id="vocab-count">${vocabData.length} từ vựng</span>
+                        <span class="badge bg-primary fs-6" id="vocab-count">${totalCount} từ vựng</span>
                     </div>
                 </div>
             </div>
@@ -111,7 +119,7 @@ class ListManager {
                         </tr>
                     </thead>
                     <tbody id="vocab-table-body">
-                        ${this.renderVocabRows(vocabData)}
+                        ${this.renderAllVocabRows(vocabData, personalOtherData, personalPastData)}
                     </tbody>
                 </table>
             </div>
@@ -151,23 +159,66 @@ class ListManager {
         this.filterVocab();
     }
 
-    renderVocabRows(vocabData) {
-        return vocabData.map((item, index) => {
+    renderAllVocabRows(vocabData, personalOtherData, personalPastData) {
+        let html = '';
+        let rowIndex = 1;
+        
+        // Regular vocab
+        vocabData.forEach((item) => {
             const originalIndex = dataLoader.getVocabData().indexOf(item);
             const isInReminds = localStorageUtils.isInReminds('vocab', originalIndex);
-            return `
-                <tr data-chapter="${item[4] || ''}" data-original-index="${originalIndex}">
-                    <td><span class="badge bg-light text-dark">${index + 1}</span></td>
+            html += `
+                <tr data-chapter="${item[4] || ''}" data-original-index="${originalIndex}" data-type="vocab">
+                    <td><span class="badge bg-light text-dark">${rowIndex++}</span></td>
                     <td><strong class="text-primary">${item[0] || ''}</strong></td>
                     <td>${dataLoader.formatVocabAnswer(item)}</td>
                     <td>
-                        <button class="remind-btn ${isInReminds ? 'active' : ''}" onclick="listManager.toggleRemind('vocab', ${originalIndex})">
+                        <button class="remind-btn ${isInReminds ? 'active' : ''}" onclick="listManager.toggleVocabRemind('vocab', ${originalIndex})">
                             <i class="bi bi-bookmark${isInReminds ? '-fill' : ''}"></i>
                         </button>
                     </td>
                 </tr>
             `;
-        }).join('');
+        });
+        
+        // Personal other words
+        personalOtherData.forEach((item, index) => {
+            const personalIndex = `personal_other_${index}`;
+            const isInReminds = localStorageUtils.isInReminds('personal_other', personalIndex);
+            html += `
+                <tr data-chapter="personal" data-original-index="${personalIndex}" data-type="personal_other">
+                    <td><span class="badge bg-light text-dark">${rowIndex++}</span></td>
+                    <td><strong class="text-primary">${item[0] || ''}</strong> <small class="text-muted">(Từ mở rộng)</small></td>
+                    <td>${item[2] || item[1] || ''}</td>
+                    <td>
+                        <button class="remind-btn ${isInReminds ? 'active' : ''}" onclick="listManager.toggleVocabRemind('personal_other', '${personalIndex}')">
+                            <i class="bi bi-bookmark${isInReminds ? '-fill' : ''}"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        // Personal past test words
+        personalPastData.forEach((item, index) => {
+            const personalIndex = `personal_past_${index}`;
+            const isInReminds = localStorageUtils.isInReminds('personal_past', personalIndex);
+            const meaning = [item[1], item[2], item[3] ? `(${item[3]})` : '', item[4] && item[4].trim() ? item[4] : ''].filter(p => p).join(' - ');
+            html += `
+                <tr data-chapter="personal" data-original-index="${personalIndex}" data-type="personal_past">
+                    <td><span class="badge bg-light text-dark">${rowIndex++}</span></td>
+                    <td><strong class="text-primary">${item[0] || ''}</strong> <small class="text-muted">(Từ các năm trước)</small></td>
+                    <td>${meaning}</td>
+                    <td>
+                        <button class="remind-btn ${isInReminds ? 'active' : ''}" onclick="listManager.toggleVocabRemind('personal_past', '${personalIndex}')">
+                            <i class="bi bi-bookmark${isInReminds ? '-fill' : ''}"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        return html;
     }
 
     filterVocab() {
@@ -184,23 +235,44 @@ class ListManager {
             
             let shouldShow = true;
             
-            // Filter by chapter
-            if (this.vocabFilters.chapter !== 'all' && chapter !== this.vocabFilters.chapter) {
-                shouldShow = false;
+            // Filter by chapter (personal words are in 'personal' chapter)
+            if (this.vocabFilters.chapter !== 'all') {
+                if (this.vocabFilters.chapter === 'personal' && chapter !== 'personal') {
+                    shouldShow = false;
+                } else if (this.vocabFilters.chapter !== 'personal' && chapter !== this.vocabFilters.chapter) {
+                    shouldShow = false;
+                }
             }
             
             // Filter by type
-            if (shouldShow && this.vocabFilters.type !== 'all' && vocabItem) {
-                if (this.vocabFilters.type === 'reduplicative' && !dataLoader.isReducplicativeWord(vocabItem)) {
+            if (shouldShow && this.vocabFilters.type !== 'all') {
+                const rowType = row.getAttribute('data-type');
+                if (this.vocabFilters.type === 'personal_other' && rowType !== 'personal_other') {
                     shouldShow = false;
-                } else if (this.vocabFilters.type === 'katakana' && !dataLoader.isKatakanaWord(vocabItem)) {
+                } else if (this.vocabFilters.type === 'personal_past' && rowType !== 'personal_past') {
+                    shouldShow = false;
+                } else if (this.vocabFilters.type === 'vocab' && rowType !== 'vocab') {
+                    shouldShow = false;
+                } else if (this.vocabFilters.type === 'reduplicative' && rowType === 'vocab' && vocabItem && !dataLoader.isReducplicativeWord(vocabItem)) {
+                    shouldShow = false;
+                } else if (this.vocabFilters.type === 'katakana' && rowType === 'vocab' && vocabItem && !dataLoader.isKatakanaWord(vocabItem)) {
+                    shouldShow = false;
+                } else if (['reduplicative', 'katakana'].includes(this.vocabFilters.type) && rowType !== 'vocab') {
                     shouldShow = false;
                 }
             }
             
             // Filter by search
-            if (shouldShow && this.vocabFilters.search && vocabItem) {
-                const word = vocabItem[0] || '';
+            if (shouldShow && this.vocabFilters.search) {
+                const rowType = row.getAttribute('data-type');
+                let word = '';
+                if (rowType === 'vocab' && vocabItem) {
+                    word = vocabItem[0] || '';
+                } else {
+                    // For personal words, get from row text
+                    const wordCell = row.querySelector('td:nth-child(2) strong');
+                    word = wordCell ? wordCell.textContent : '';
+                }
                 if (!word.toLowerCase().includes(this.vocabFilters.search)) {
                     shouldShow = false;
                 }
@@ -221,12 +293,18 @@ class ListManager {
         const countBadge = document.getElementById('vocab-count');
         if (countBadge) {
             let typeText = '';
-            if (this.vocabFilters.type === 'reduplicative') {
+            if (this.vocabFilters.type === 'vocab') {
+                typeText = 'thường';
+            } else if (this.vocabFilters.type === 'reduplicative') {
                 typeText = 'chỉ hiragana';
             } else if (this.vocabFilters.type === 'katakana') {
                 typeText = 'katakana';
+            } else if (this.vocabFilters.type === 'personal_other') {
+                typeText = 'mở rộng';
+            } else if (this.vocabFilters.type === 'personal_past') {
+                typeText = 'các năm trước';
             }
-            countBadge.textContent = `${visibleCount} từ vựng ${typeText} `;
+            countBadge.textContent = `${visibleCount} từ vựng ${typeText}`.trim();
         }
     }
 
@@ -586,6 +664,21 @@ class ListManager {
             element.style.fontSize = fontSize + 'px';
             attempts++;
         }
+    }
+    
+    toggleVocabRemind(type, index) {
+        const isInReminds = localStorageUtils.isInReminds(type, index);
+        
+        if (isInReminds) {
+            localStorageUtils.removeFromReminds(type, index);
+            this.showNotification(`Đã xóa khỏi danh sách ôn tập`);
+        } else {
+            localStorageUtils.addToReminds(type, index);
+            this.showNotification(`Đã thêm vào danh sách ôn tập`);
+        }
+        
+        // Reload current tab to update UI
+        this.loadTabContent();
     }
     
     toggleRemind(type, index) {

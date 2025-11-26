@@ -9,6 +9,9 @@ class VocabQuiz {
         this.useRemindsOnly = false;
         this.useReducplicativeOnly = false;
         this.useKatakanaOnly = false;
+        this.usePersonalOtherWords = false;
+        this.usePersonalPastTestWords = false;
+        this.usePersonalReducplicativeWords = false;
         this.selectedChapter = 'all';
     }
 
@@ -17,7 +20,17 @@ class VocabQuiz {
         const remindsCheckbox = document.getElementById('vocab-reminds');
         const reduplicativeCheckbox = document.getElementById('vocab-reduplicative');
         const katakanaCheckbox = document.getElementById('vocab-katakana');
+        const personalOtherCheckbox = document.getElementById('vocab-personal-other');
+        const personalPastCheckbox = document.getElementById('vocab-personal-past');
         const chapterSelect = document.getElementById('vocab-chapter');
+        
+        // Show personal mode options if in personal mode
+        if (dataLoader.isInPersonalMode()) {
+            const personalOtherContainer = document.getElementById('vocab-personal-other-container');
+            const personalPastContainer = document.getElementById('vocab-personal-past-container');
+            if (personalOtherContainer) personalOtherContainer.style.display = 'block';
+            if (personalPastContainer) personalPastContainer.style.display = 'block';
+        }
         
         // Populate chapter dropdown
         this.populateChapterDropdown();
@@ -29,16 +42,23 @@ class VocabQuiz {
             this.useRemindsOnly = lastQuestion.mode.is_remind === 1;
             this.useReducplicativeOnly = lastQuestion.mode.is_reduplicative === 1;
             this.useKatakanaOnly = lastQuestion.mode.is_katakana === 1;
+            this.usePersonalOtherWords = lastQuestion.mode.is_personal_other === 1;
+            this.usePersonalPastTestWords = lastQuestion.mode.is_personal_past === 1;
+            this.usePersonalReducplicativeWords = lastQuestion.mode.is_personal_reduplicative === 1;
             this.selectedChapter = lastQuestion.mode.chapter || 'all';
             
             if (revertCheckbox) revertCheckbox.checked = this.isRevertMode;
             if (remindsCheckbox) remindsCheckbox.checked = this.useRemindsOnly;
             if (reduplicativeCheckbox) reduplicativeCheckbox.checked = this.useReducplicativeOnly;
             if (katakanaCheckbox) katakanaCheckbox.checked = this.useKatakanaOnly;
+            if (personalOtherCheckbox) personalOtherCheckbox.checked = this.usePersonalOtherWords;
+            if (personalPastCheckbox) personalPastCheckbox.checked = this.usePersonalPastTestWords;
+            const personalReducplicativeCheckbox = document.getElementById('vocab-personal-reduplicative');
+            if (personalReducplicativeCheckbox) personalReducplicativeCheckbox.checked = this.usePersonalReducplicativeWords;
             if (chapterSelect) {
                 chapterSelect.value = this.selectedChapter;
                 // Disable chapter select if special modes are active
-                if (this.useReducplicativeOnly || this.useKatakanaOnly) {
+                if (this.useReducplicativeOnly || this.useKatakanaOnly || this.usePersonalOtherWords || this.usePersonalPastTestWords || this.usePersonalReducplicativeWords) {
                     chapterSelect.disabled = true;
                 }
             }
@@ -54,13 +74,7 @@ class VocabQuiz {
         if (remindsCheckbox) {
             remindsCheckbox.addEventListener('change', (e) => {
                 this.useRemindsOnly = e.target.checked;
-                if (e.target.checked) {
-                    // Disable other filters when reminds is enabled
-                    this.useReducplicativeOnly = false;
-                    this.useKatakanaOnly = false;
-                    if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
-                    if (katakanaCheckbox) katakanaCheckbox.checked = false;
-                }
+                // Don't disable personal modes when reminds is enabled - they should work together
                 this.updateAvailableData();
                 this.generateNewQuestion();
             });
@@ -70,11 +84,16 @@ class VocabQuiz {
             reduplicativeCheckbox.addEventListener('change', (e) => {
                 this.useReducplicativeOnly = e.target.checked;
                 if (e.target.checked) {
-                    // Disable other filters when reduplicative is enabled
-                    this.useRemindsOnly = false;
+                    // Disable other filters when reduplicative is enabled (except reminds)
                     this.useKatakanaOnly = false;
-                    if (remindsCheckbox) remindsCheckbox.checked = false;
+                    this.usePersonalOtherWords = false;
+                    this.usePersonalPastTestWords = false;
+                    this.usePersonalReducplicativeWords = false;
                     if (katakanaCheckbox) katakanaCheckbox.checked = false;
+                    if (personalOtherCheckbox) personalOtherCheckbox.checked = false;
+                    if (personalPastCheckbox) personalPastCheckbox.checked = false;
+                    const personalReducplicativeCheckbox = document.getElementById('vocab-personal-reduplicative');
+                    if (personalReducplicativeCheckbox) personalReducplicativeCheckbox.checked = false;
                     
                     // Reset to all chapters and disable chapter select
                     this.selectedChapter = 'all';
@@ -98,8 +117,12 @@ class VocabQuiz {
                     // Disable other filters when katakana is enabled
                     this.useRemindsOnly = false;
                     this.useReducplicativeOnly = false;
+                    this.usePersonalOtherWords = false;
+                    this.usePersonalPastTestWords = false;
                     if (remindsCheckbox) remindsCheckbox.checked = false;
                     if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
+                    if (personalOtherCheckbox) personalOtherCheckbox.checked = false;
+                    if (personalPastCheckbox) personalPastCheckbox.checked = false;
                     
                     // Reset to all chapters and disable chapter select
                     this.selectedChapter = 'all';
@@ -109,7 +132,97 @@ class VocabQuiz {
                     }
                 } else {
                     // Re-enable chapter select when mode is disabled
-                    if (chapterSelect) chapterSelect.disabled = false;
+                    if (chapterSelect) chapterSelect.disabled = this.useReducplicativeOnly || this.usePersonalOtherWords || this.usePersonalPastTestWords;
+                }
+                this.updateAvailableData();
+                this.generateNewQuestion();
+            });
+        }
+        
+        if (personalOtherCheckbox && dataLoader.isInPersonalMode()) {
+            personalOtherCheckbox.addEventListener('change', (e) => {
+                this.usePersonalOtherWords = e.target.checked;
+                if (e.target.checked) {
+                    // Disable other filters when personal other words is enabled (except reminds)
+                    this.useReducplicativeOnly = false;
+                    this.useKatakanaOnly = false;
+                    this.usePersonalPastTestWords = false;
+                    this.usePersonalReducplicativeWords = false;
+                    if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
+                    if (katakanaCheckbox) katakanaCheckbox.checked = false;
+                    if (personalPastCheckbox) personalPastCheckbox.checked = false;
+                    const personalReducplicativeCheckbox = document.getElementById('vocab-personal-reduplicative');
+                    if (personalReducplicativeCheckbox) personalReducplicativeCheckbox.checked = false;
+                    
+                    // Reset to all chapters and disable chapter select
+                    this.selectedChapter = 'all';
+                    if (chapterSelect) {
+                        chapterSelect.value = 'all';
+                        chapterSelect.disabled = true;
+                    }
+                } else {
+                    // Re-enable chapter select when mode is disabled
+                    if (chapterSelect) chapterSelect.disabled = this.useReducplicativeOnly || this.useKatakanaOnly || this.usePersonalPastTestWords || this.usePersonalReducplicativeWords;
+                }
+                this.updateAvailableData();
+                this.generateNewQuestion();
+            });
+        }
+        
+        if (personalPastCheckbox && dataLoader.isInPersonalMode()) {
+            personalPastCheckbox.addEventListener('change', (e) => {
+                this.usePersonalPastTestWords = e.target.checked;
+                if (e.target.checked) {
+                    // Disable other filters when personal past test words is enabled (except reminds)
+                    this.useReducplicativeOnly = false;
+                    this.useKatakanaOnly = false;
+                    this.usePersonalOtherWords = false;
+                    this.usePersonalReducplicativeWords = false;
+                    if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
+                    if (katakanaCheckbox) katakanaCheckbox.checked = false;
+                    if (personalOtherCheckbox) personalOtherCheckbox.checked = false;
+                    const personalReducplicativeCheckbox = document.getElementById('vocab-personal-reduplicative');
+                    if (personalReducplicativeCheckbox) personalReducplicativeCheckbox.checked = false;
+                    
+                    // Reset to all chapters and disable chapter select
+                    this.selectedChapter = 'all';
+                    if (chapterSelect) {
+                        chapterSelect.value = 'all';
+                        chapterSelect.disabled = true;
+                    }
+                } else {
+                    // Re-enable chapter select when mode is disabled
+                    if (chapterSelect) chapterSelect.disabled = this.useReducplicativeOnly || this.useKatakanaOnly || this.usePersonalOtherWords || this.usePersonalReducplicativeWords;
+                }
+                this.updateAvailableData();
+                this.generateNewQuestion();
+            });
+        }
+        
+        const personalReducplicativeCheckbox = document.getElementById('vocab-personal-reduplicative');
+        if (personalReducplicativeCheckbox && dataLoader.isInPersonalMode()) {
+            personalReducplicativeCheckbox.addEventListener('change', (e) => {
+                this.usePersonalReducplicativeWords = e.target.checked;
+                if (e.target.checked) {
+                    // Disable other filters when personal reduplicative words is enabled (except reminds)
+                    this.useReducplicativeOnly = false;
+                    this.useKatakanaOnly = false;
+                    this.usePersonalOtherWords = false;
+                    this.usePersonalPastTestWords = false;
+                    if (reduplicativeCheckbox) reduplicativeCheckbox.checked = false;
+                    if (katakanaCheckbox) katakanaCheckbox.checked = false;
+                    if (personalOtherCheckbox) personalOtherCheckbox.checked = false;
+                    if (personalPastCheckbox) personalPastCheckbox.checked = false;
+                    
+                    // Reset to all chapters and disable chapter select
+                    this.selectedChapter = 'all';
+                    if (chapterSelect) {
+                        chapterSelect.value = 'all';
+                        chapterSelect.disabled = true;
+                    }
+                } else {
+                    // Re-enable chapter select when mode is disabled
+                    if (chapterSelect) chapterSelect.disabled = this.useReducplicativeOnly || this.useKatakanaOnly || this.usePersonalOtherWords || this.usePersonalPastTestWords;
                 }
                 this.updateAvailableData();
                 this.generateNewQuestion();
@@ -119,7 +232,7 @@ class VocabQuiz {
         if (chapterSelect) {
             chapterSelect.addEventListener('change', (e) => {
                 // Prevent chapter changes when in special modes
-                if (this.useReducplicativeOnly || this.useKatakanaOnly) {
+                if (this.useReducplicativeOnly || this.useKatakanaOnly || this.usePersonalOtherWords || this.usePersonalPastTestWords || this.usePersonalReducplicativeWords) {
                     e.target.value = 'all';
                     return;
                 }
@@ -149,7 +262,80 @@ class VocabQuiz {
 
 
     updateAvailableData() {
-        if (this.useRemindsOnly) {
+        // Handle personal modes with remind filtering
+        if (this.usePersonalOtherWords && dataLoader.isInPersonalMode()) {
+            const personalOtherData = dataLoader.getPersonalOtherWords();
+            let availableIndices = personalOtherData.map((data, index) => `personal_other_${index}`);
+            
+            if (this.useRemindsOnly) {
+                const reminds = localStorageUtils.getRemindsByType('personal_other');
+                const remindIndices = reminds.map(index => localStorageUtils.convertFromShortKey(index));
+                availableIndices = availableIndices.filter(index => remindIndices.includes(index));
+                
+                if (availableIndices.length < 4) {
+                    document.getElementById('vocab-reminds').checked = false;
+                    this.useRemindsOnly = false;
+                    this.showNotification('Cần ít nhất 4 từ mở rộng trong danh sách ôn tập', 'warning');
+                    availableIndices = personalOtherData.map((data, index) => `personal_other_${index}`);
+                }
+            }
+            
+            this.availableData = availableIndices.map(index => {
+                const numIndex = parseInt(index.replace('personal_other_', ''));
+                return {
+                    data: personalOtherData[numIndex],
+                    originalIndex: index
+                };
+            }).filter(item => item.data);
+        } else if (this.usePersonalPastTestWords && dataLoader.isInPersonalMode()) {
+            const personalPastData = dataLoader.getPersonalPastTestWords();
+            let availableIndices = personalPastData.map((data, index) => `personal_past_${index}`);
+            
+            if (this.useRemindsOnly) {
+                const reminds = localStorageUtils.getRemindsByType('personal_past');
+                const remindIndices = reminds.map(index => localStorageUtils.convertFromShortKey(index));
+                availableIndices = availableIndices.filter(index => remindIndices.includes(index));
+                
+                if (availableIndices.length < 4) {
+                    document.getElementById('vocab-reminds').checked = false;
+                    this.useRemindsOnly = false;
+                    this.showNotification('Cần ít nhất 4 từ các năm trước trong danh sách ôn tập', 'warning');
+                    availableIndices = personalPastData.map((data, index) => `personal_past_${index}`);
+                }
+            }
+            
+            this.availableData = availableIndices.map(index => {
+                const numIndex = parseInt(index.replace('personal_past_', ''));
+                return {
+                    data: personalPastData[numIndex],
+                    originalIndex: index
+                };
+            }).filter(item => item.data);
+        } else if (this.usePersonalReducplicativeWords && dataLoader.isInPersonalMode()) {
+            const personalReducplicativeData = dataLoader.getPersonalReducplicativeWords();
+            let availableIndices = personalReducplicativeData.map((data, index) => `personal_reduplicative_${index}`);
+            
+            if (this.useRemindsOnly) {
+                const reminds = localStorageUtils.getRemindsByType('personal_reduplicative');
+                const remindIndices = reminds.map(index => localStorageUtils.convertFromShortKey(index));
+                availableIndices = availableIndices.filter(index => remindIndices.includes(index));
+                
+                if (availableIndices.length < 4) {
+                    document.getElementById('vocab-reminds').checked = false;
+                    this.useRemindsOnly = false;
+                    this.showNotification('Cần ít nhất 4 từ láy trong danh sách ôn tập', 'warning');
+                    availableIndices = personalReducplicativeData.map((data, index) => `personal_reduplicative_${index}`);
+                }
+            }
+            
+            this.availableData = availableIndices.map(index => {
+                const numIndex = parseInt(index.replace('personal_reduplicative_', ''));
+                return {
+                    data: personalReducplicativeData[numIndex],
+                    originalIndex: index
+                };
+            }).filter(item => item.data);
+        } else if (this.useRemindsOnly) {
             const reminds = localStorageUtils.getRemindsByType('vocab');
             let filteredReminds = reminds;
             
@@ -257,6 +443,9 @@ class VocabQuiz {
             is_remind: this.useRemindsOnly ? 1 : 0,
             is_reduplicative: this.useReducplicativeOnly ? 1 : 0,
             is_katakana: this.useKatakanaOnly ? 1 : 0,
+            is_personal_other: this.usePersonalOtherWords ? 1 : 0,
+            is_personal_past: this.usePersonalPastTestWords ? 1 : 0,
+            is_personal_reduplicative: this.usePersonalReducplicativeWords ? 1 : 0,
             chapter: this.selectedChapter
         });
 
@@ -301,13 +490,13 @@ class VocabQuiz {
 
         // Create answer options
         const correctAnswer = {
-            text: dataLoader.formatVocabAnswer(this.currentQuestion),
+            text: this.formatAnswerWithTestDate(this.currentQuestion),
             isCorrect: true,
             data: this.currentQuestion
         };
 
         const wrongAnswers = wrongIndices.map(item => ({
-            text: dataLoader.formatVocabAnswer(item.data),
+            text: this.formatAnswerWithTestDate(item.data),
             isCorrect: false,
             data: item.data
         }));
@@ -318,7 +507,15 @@ class VocabQuiz {
     }
 
     generateRevertMode() {
-        const meaning = this.currentQuestion[2]; // Vietnamese meaning
+        // For personal modes, get meaning from correct column
+        let meaning;
+        if (this.usePersonalReducplicativeWords) {
+            meaning = this.currentQuestion[1]; // 2-column format: column 1 is meaning
+        } else if (this.usePersonalOtherWords) {
+            meaning = this.currentQuestion[2]; // 3-column format: column 2 is meaning
+        } else {
+            meaning = this.currentQuestion[2]; // Standard format: column 2 is meaning
+        }
         
         if (!meaning || meaning === '') {
             this.generateNewQuestion();
@@ -337,15 +534,15 @@ class VocabQuiz {
 
         // Create answer options with full format for revert mode
         const correctAnswer = {
-            text: this.currentQuestion[0], // Kanji/hiragana/katakana for selection
-            fullText: [this.currentQuestion[0], this.currentQuestion[1], this.currentQuestion[2]].filter(part => part && part.trim() !== '').join(' - '), // Full format for result
+            text: this.formatWordWithTestDate(this.currentQuestion), // Kanji/hiragana/katakana with test date
+            fullText: this.formatAnswerForRevertMode(this.currentQuestion), // Full format for result
             isCorrect: true,
             data: this.currentQuestion
         };
 
         const wrongAnswers = wrongIndices.map(item => ({
-            text: item.data[0], // Kanji/hiragana/katakana for selection
-            fullText: [item.data[0], item.data[1], item.data[2]].filter(part => part && part.trim() !== '').join(' - '), // Full format for result
+            text: this.formatWordWithTestDate(item.data), // Kanji/hiragana/katakana with test date
+            fullText: this.formatAnswerForRevertMode(item.data), // Full format for result
             isCorrect: false,
             data: item.data
         }));
@@ -370,7 +567,7 @@ class VocabQuiz {
                 <div class="question-content">
                     <div class="question-text">
                         ${questionText}
-                        <i class="bi bi-bookmark bookmark-icon ${localStorageUtils.isInReminds('vocab', this.currentIndex) ? 'bookmarked' : ''}" 
+                        <i class="bi bi-bookmark bookmark-icon ${this.isCurrentlyBookmarked() ? 'bookmarked' : ''}" 
                            onclick="vocabQuiz.toggleRemind()" title="Add to reminds"></i>
                     </div>
                 </div>
@@ -421,12 +618,19 @@ class VocabQuiz {
         } else {
             selectedChip.classList.add('incorrect');
             // Add to reminds if wrong
-            localStorageUtils.addToReminds('vocab', this.currentIndex);
+            let remindType = 'vocab';
+            if (this.usePersonalOtherWords) remindType = 'personal_other';
+            else if (this.usePersonalPastTestWords) remindType = 'personal_past';
+            else if (this.usePersonalReducplicativeWords) remindType = 'personal_reduplicative';
+            localStorageUtils.addToReminds(remindType, this.currentIndex);
             // Remove encounter count for wrong answer
             const mode = this.isRevertMode ? 'revert' : 'normal';
             let specialMode = null;
             if (this.useReducplicativeOnly) specialMode = 'reduplicative';
             else if (this.useKatakanaOnly) specialMode = 'katakana';
+            else if (this.usePersonalOtherWords) specialMode = 'personal_other';
+            else if (this.usePersonalPastTestWords) specialMode = 'personal_past';
+            else if (this.usePersonalReducplicativeWords) specialMode = 'personal_reduplicative';
             
             localStorageUtils.removeEncounter('vocab', mode, this.currentIndex.toString(), this.useRemindsOnly, specialMode);
             
@@ -437,18 +641,39 @@ class VocabQuiz {
                 }
             });
         }
+        
+
+    }
+
+    isCurrentlyBookmarked() {
+        let remindType = 'vocab';
+        if (this.usePersonalOtherWords) remindType = 'personal_other';
+        else if (this.usePersonalPastTestWords) remindType = 'personal_past';
+        else if (this.usePersonalReducplicativeWords) remindType = 'personal_reduplicative';
+        return localStorageUtils.isInReminds(remindType, this.currentIndex);
     }
 
     toggleRemind() {
-        const isCurrentlyInReminds = localStorageUtils.isInReminds('vocab', this.currentIndex);
+        let remindType = 'vocab';
+        
+        // Use different remind types for personal modes
+        if (this.usePersonalOtherWords) {
+            remindType = 'personal_other';
+        } else if (this.usePersonalPastTestWords) {
+            remindType = 'personal_past';
+        } else if (this.usePersonalReducplicativeWords) {
+            remindType = 'personal_reduplicative';
+        }
+        
+        const isCurrentlyInReminds = localStorageUtils.isInReminds(remindType, this.currentIndex);
         const bookmarkIcon = document.querySelector('#vocab-quiz .bookmark-icon');
         
         if (isCurrentlyInReminds) {
-            localStorageUtils.removeFromReminds('vocab', this.currentIndex);
+            localStorageUtils.removeFromReminds(remindType, this.currentIndex);
             bookmarkIcon.classList.remove('bookmarked');
             this.showNotification('Đã xoá khỏi danh sách ôn tập', 'info');
         } else {
-            localStorageUtils.addToReminds('vocab', this.currentIndex);
+            localStorageUtils.addToReminds(remindType, this.currentIndex);
             bookmarkIcon.classList.add('bookmarked');
             this.showNotification('Đã thêm vào danh sách ôn tập!', 'success');
         }
@@ -476,6 +701,46 @@ class VocabQuiz {
         }
     }
 
+    formatAnswerForRevertMode(questionData) {
+        if (this.usePersonalPastTestWords) {
+            // Special format for past test words: kanji/hiragana - pronunciation - meaning - example - time
+            const parts = [questionData[0], questionData[1], questionData[2]];
+            if (questionData[4] && questionData[4].trim() !== '') parts.push(questionData[4]); // example/same meaning words (can be null)
+            if (questionData[3]) parts.push(questionData[3]); // test time
+            return parts.filter(part => part && part.trim() !== '').join(' - ');
+        } else if (this.usePersonalReducplicativeWords) {
+            // 2-column format: hiragana - meaning
+            return [questionData[0], questionData[1]].filter(part => part && part.trim() !== '').join(' - ');
+        } else if (this.usePersonalOtherWords) {
+            // 3-column format: hiragana - hiragana - meaning
+            return [questionData[0], questionData[2]].filter(part => part && part.trim() !== '').join(' - ');
+        } else {
+            // Standard format for other modes
+            return [questionData[0], questionData[1], questionData[2]].filter(part => part && part.trim() !== '').join(' - ');
+        }
+    }
+
+    formatAnswerWithTestDate(questionData) {
+        if (this.usePersonalPastTestWords && questionData[3]) {
+            // For past test words, append test date to the formatted answer
+            const baseAnswer = dataLoader.formatVocabAnswer(questionData);
+            return `${baseAnswer} - ${questionData[3]}`;
+        } else {
+            // Standard format for other modes
+            return dataLoader.formatVocabAnswer(questionData);
+        }
+    }
+
+    formatWordWithTestDate(questionData) {
+        if (this.usePersonalPastTestWords && questionData[3]) {
+            // For revert mode past test words, append test date to the word
+            return `${questionData[0]} - ${questionData[3]}`;
+        } else {
+            // Standard format for other modes
+            return questionData[0];
+        }
+    }
+
     start() {
         // Check for last question first, then update data based on saved state
         const lastQuestion = localStorageUtils.getLastQuestion('vocab');
@@ -485,6 +750,8 @@ class VocabQuiz {
             const savedIsRemind = lastQuestion.mode.is_remind === 1;
             const savedIsReducplicative = lastQuestion.mode.is_reduplicative === 1;
             const savedIsKatakana = lastQuestion.mode.is_katakana === 1;
+            const savedIsPersonalOther = lastQuestion.mode.is_personal_other === 1;
+            const savedIsPersonalPast = lastQuestion.mode.is_personal_past === 1;
             const savedChapter = lastQuestion.mode.chapter || 'all';
             
             // If modes match, update data and try to restore last question
@@ -492,6 +759,9 @@ class VocabQuiz {
                 savedIsRemind === this.useRemindsOnly && 
                 savedIsReducplicative === this.useReducplicativeOnly &&
                 savedIsKatakana === this.useKatakanaOnly &&
+                savedIsPersonalOther === this.usePersonalOtherWords &&
+                savedIsPersonalPast === this.usePersonalPastTestWords &&
+                (lastQuestion.mode.is_personal_reduplicative === 1) === this.usePersonalReducplicativeWords &&
                 savedChapter === this.selectedChapter) {
                 this.updateAvailableData();
                 const questionItem = this.availableData.find(item => item.originalIndex === lastQuestion.questionIndex);
